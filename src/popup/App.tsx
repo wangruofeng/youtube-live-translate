@@ -4,6 +4,8 @@ import './popup.css';
 interface PopupState {
   enabled: boolean;
   targetLang: string;
+  showOriginal: boolean;
+  hideOriginalSubtitles: boolean;
 }
 
 const TARGET_LANGUAGES = [
@@ -23,14 +25,18 @@ const App: React.FC = () => {
   const [state, setState] = useState<PopupState>({
     enabled: true,
     targetLang: 'zh-CN',
+    showOriginal: false,
+    hideOriginalSubtitles: false,
   });
 
   useEffect(() => {
     // 加载保存的设置
-    chrome.storage.sync.get(['enabled', 'targetLang'], (result) => {
+    chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles'], (result) => {
       setState({
         enabled: result.enabled ?? true,
         targetLang: result.targetLang ?? 'zh-CN',
+        showOriginal: result.showOriginal ?? false,
+        hideOriginalSubtitles: result.hideOriginalSubtitles ?? false,
       });
     });
   }, []);
@@ -46,6 +52,18 @@ const App: React.FC = () => {
     const newState = { ...state, targetLang: newLang };
     setState(newState);
     chrome.storage.sync.set({ targetLang: newLang });
+  };
+
+  const handleShowOriginalToggle = () => {
+    const newState = { ...state, showOriginal: !state.showOriginal };
+    setState(newState);
+    chrome.storage.sync.set({ showOriginal: newState.showOriginal });
+  };
+
+  const handleHideOriginalSubtitlesToggle = () => {
+    const newState = { ...state, hideOriginalSubtitles: !state.hideOriginalSubtitles };
+    setState(newState);
+    chrome.storage.sync.set({ hideOriginalSubtitles: newState.hideOriginalSubtitles });
   };
 
   return (
@@ -65,6 +83,36 @@ const App: React.FC = () => {
           <button
             className={`toggle-button ${state.enabled ? 'active' : ''}`}
             onClick={handleToggle}
+          >
+            <div className="toggle-slider"></div>
+          </button>
+        </div>
+
+        <div className="setting-item">
+          <div className="setting-label">
+            <span>显示原文</span>
+            <span className={`status-badge ${state.showOriginal ? 'enabled' : 'disabled'}`}>
+              {state.showOriginal ? '已启用' : '已禁用'}
+            </span>
+          </div>
+          <button
+            className={`toggle-button ${state.showOriginal ? 'active' : ''}`}
+            onClick={handleShowOriginalToggle}
+          >
+            <div className="toggle-slider"></div>
+          </button>
+        </div>
+
+        <div className="setting-item">
+          <div className="setting-label">
+            <span>隐藏 YouTube 原字幕</span>
+            <span className={`status-badge ${state.hideOriginalSubtitles ? 'enabled' : 'disabled'}`}>
+              {state.hideOriginalSubtitles ? '已启用' : '已禁用'}
+            </span>
+          </div>
+          <button
+            className={`toggle-button ${state.hideOriginalSubtitles ? 'active' : ''}`}
+            onClick={handleHideOriginalSubtitlesToggle}
           >
             <div className="toggle-slider"></div>
           </button>
@@ -91,6 +139,9 @@ const App: React.FC = () => {
         <div className="info-section">
           <p className="info-text">
             💡 在 YouTube 视频页面，字幕会自动显示翻译
+          </p>
+          <p className="info-text">
+            ⌨️ 快捷键：Alt+T 显示/隐藏原文 | Alt+R 重置位置 | Alt+O 重新打开字幕
           </p>
         </div>
       </main>
