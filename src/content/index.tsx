@@ -2,11 +2,23 @@
 // 基于双行结构、防闪烁、序列号机制的完整实现
 
 type TextAlignType = 'left' | 'center' | 'right';
+type TranslatedFontSizeType = 'small' | 'medium' | 'large';
 
 const TEXT_ALIGN_VALUES: TextAlignType[] = ['left', 'center', 'right'];
+const TRANSLATED_FONT_SIZE_VALUES: TranslatedFontSizeType[] = ['small', 'medium', 'large'];
+
+const TRANSLATED_FONT_SIZE_PX: Record<TranslatedFontSizeType, number> = {
+  small: 18,
+  medium: 22,
+  large: 26,
+};
 
 function normalizeTextAlign(value: unknown): TextAlignType {
   return TEXT_ALIGN_VALUES.includes(value as TextAlignType) ? (value as TextAlignType) : 'center';
+}
+
+function normalizeTranslatedFontSize(value: unknown): TranslatedFontSizeType {
+  return TRANSLATED_FONT_SIZE_VALUES.includes(value as TranslatedFontSizeType) ? (value as TranslatedFontSizeType) : 'medium';
 }
 
 interface TranslationState {
@@ -15,6 +27,7 @@ interface TranslationState {
   showOriginal: boolean;
   hideOriginalSubtitles: boolean;
   textAlign: TextAlignType;
+  translatedFontSize: TranslatedFontSizeType;
 }
 
 interface SubtitlePosition {
@@ -98,9 +111,11 @@ class SubtitleTranslator {
     showOriginal: false,
     hideOriginalSubtitles: false,
     textAlign: 'center',
+    translatedFontSize: 'medium',
   };
 
-  // UI 元素
+  // UI 元素（wrapper 为全尺寸定位层，overlay 挂在其内）
+  private wrapper: HTMLDivElement | null = null;
   private overlay: HTMLDivElement | null = null;
   private subtitleBox: HTMLDivElement | null = null;
   private originalLine: HTMLDivElement | null = null;
@@ -110,9 +125,9 @@ class SubtitleTranslator {
   private currentSubtitle: SubtitleData | null = null;
   private lastOriginalText = '';
   private debounceTimer: number | null = null;
-  private readonly DEBOUNCE_DELAY = 300;
+  private readonly DEBOUNCE_DELAY = 180;
   private lastProcessTime = 0;
-  private readonly THROTTLE_DELAY = 100; // 节流延迟，避免高频触发
+  private readonly THROTTLE_DELAY = 60; // 节流延迟，提高实时性
   private lastTranslatedText = ''; // 记录上次翻译的文本
   private seq = 0;
   private latestSeq = 0;
@@ -144,7 +159,7 @@ class SubtitleTranslator {
   // 翻译
   private cache = new TranslationCache();
   private translationQueue = new Set<string>();
-  private readonly TRANSLATION_INTERVAL = 1000; // 1秒限流
+  private readonly TRANSLATION_INTERVAL = 500; // 500ms 限流，提高实时性
 
   constructor() {
     this.init();
@@ -153,13 +168,14 @@ class SubtitleTranslator {
   private async init() {
     console.log('[YouTube Live Translate] 初始化中...');
 
-    const result = await chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign', 'position', 'isClosed']);
+    const result = await chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign', 'translatedFontSize', 'position', 'isClosed']);
     this.state = {
       enabled: result.enabled ?? true,
       targetLang: result.targetLang ?? 'zh-CN',
       showOriginal: result.showOriginal ?? false,
       hideOriginalSubtitles: result.hideOriginalSubtitles ?? false,
       textAlign: normalizeTextAlign(result.textAlign),
+      translatedFontSize: normalizeTranslatedFontSize(result.translatedFontSize),
     };
 
     // 读取位置：无保存或为默认占位则使用“默认底部居中”（CSS 百分比）；否则用保存的像素位置
@@ -203,6 +219,10 @@ class SubtitleTranslator {
         if (changes.textAlign) {
           this.state.textAlign = normalizeTextAlign(changes.textAlign.newValue);
           this.updateTextAlign();
+        }
+        if (changes.translatedFontSize) {
+          this.state.translatedFontSize = normalizeTranslatedFontSize(changes.translatedFontSize.newValue);
+          this.updateTranslatedFontSize();
         }
       }
     });
@@ -380,6 +400,7 @@ class SubtitleTranslator {
 
     // 全尺寸包装层，与播放器同大，使 overlay 的 left:50% 相对播放器居中
     const wrapper = document.createElement('div');
+    this.wrapper = wrapper;
     wrapper.id = 'yt-live-translate-wrapper';
     wrapper.style.cssText = `
       position: absolute;
@@ -492,11 +513,12 @@ class SubtitleTranslator {
     `;
 
     // 译文行（默认显示）
+    const translatedFontSizePx = TRANSLATED_FONT_SIZE_PX[this.state.translatedFontSize];
     this.translatedLine = document.createElement('div');
     this.translatedLine.id = 'yt-live-translate-translated';
     this.translatedLine.style.cssText = `
       color: white;
-      font-size: 18px;
+      font-size: ${translatedFontSizePx}px;
       line-height: 1.4;
       font-weight: 500;
       text-align: ${this.state.textAlign};
@@ -632,6 +654,11 @@ class SubtitleTranslator {
     if (this.translatedLine) this.translatedLine.style.textAlign = this.state.textAlign;
   }
 
+  private updateTranslatedFontSize() {
+    if (!this.translatedLine) return;
+    this.translatedLine.style.fontSize = `${TRANSLATED_FONT_SIZE_PX[this.state.translatedFontSize]}px`;
+  }
+
   private updateOriginalSubtitlesVisibility() {
     // 隐藏/显示 YouTube 原生字幕
     const hideShowSubtitles = () => {
@@ -732,10 +759,10 @@ class SubtitleTranslator {
       subtree: true,
     });
 
-    // 同时使用定时器作为兜底
+    // 定时器兜底，缩短间隔提高实时性
     this.checkInterval = window.setInterval(() => {
       this.handleSubtitleChange(selector);
-    }, 200) as unknown as number;
+    }, 120) as unknown as number;
 
     console.log('[YouTube Live Translate] 开始监听字幕变化');
   }

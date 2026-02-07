@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './popup.css';
 
 type TextAlignType = 'left' | 'center' | 'right';
+type TranslatedFontSizeType = 'small' | 'medium' | 'large';
 
 interface PopupState {
   enabled: boolean;
@@ -9,12 +10,19 @@ interface PopupState {
   showOriginal: boolean;
   hideOriginalSubtitles: boolean;
   textAlign: TextAlignType;
+  translatedFontSize: TranslatedFontSizeType;
 }
 
 const TEXT_ALIGN_OPTIONS: { value: TextAlignType; name: string }[] = [
   { value: 'left', name: '左对齐' },
   { value: 'center', name: '居中对齐' },
   { value: 'right', name: '右对齐' },
+];
+
+const TRANSLATED_FONT_SIZE_OPTIONS: { value: TranslatedFontSizeType; name: string }[] = [
+  { value: 'small', name: '小' },
+  { value: 'medium', name: '中' },
+  { value: 'large', name: '大' },
 ];
 
 const TARGET_LANGUAGES = [
@@ -37,17 +45,19 @@ const App: React.FC = () => {
     showOriginal: false,
     hideOriginalSubtitles: false,
     textAlign: 'center',
+    translatedFontSize: 'medium',
   });
 
   useEffect(() => {
     // 加载保存的设置
-    chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign'], (result) => {
+    chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign', 'translatedFontSize'], (result) => {
       setState({
         enabled: result.enabled ?? true,
         targetLang: result.targetLang ?? 'zh-CN',
         showOriginal: result.showOriginal ?? false,
         hideOriginalSubtitles: result.hideOriginalSubtitles ?? false,
         textAlign: TEXT_ALIGN_OPTIONS.some((o) => o.value === result.textAlign) ? (result.textAlign as TextAlignType) : 'center',
+        translatedFontSize: TRANSLATED_FONT_SIZE_OPTIONS.some((o) => o.value === result.translatedFontSize) ? (result.translatedFontSize as TranslatedFontSizeType) : 'medium',
       });
     });
   }, []);
@@ -82,6 +92,13 @@ const App: React.FC = () => {
     const textAlign = TEXT_ALIGN_OPTIONS.some((o) => o.value === raw) ? (raw as TextAlignType) : 'center';
     setState({ ...state, textAlign });
     chrome.storage.sync.set({ textAlign });
+  };
+
+  const handleTranslatedFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const raw = e.target.value;
+    const translatedFontSize = TRANSLATED_FONT_SIZE_OPTIONS.some((o) => o.value === raw) ? (raw as TranslatedFontSizeType) : 'medium';
+    setState({ ...state, translatedFontSize });
+    chrome.storage.sync.set({ translatedFontSize });
   };
 
   return (
@@ -160,7 +177,7 @@ const App: React.FC = () => {
           </select>
         </div>
 
-        <div className="setting-item setting-item--last">
+        <div className="setting-item">
           <label className="setting-label setting-label--stack" htmlFor="text-align-select">
             翻译内容对齐
           </label>
@@ -171,6 +188,24 @@ const App: React.FC = () => {
             onChange={handleTextAlignChange}
           >
             {TEXT_ALIGN_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="setting-item setting-item--last">
+          <label className="setting-label setting-label--stack" htmlFor="translated-font-size-select">
+            译文字体大小
+          </label>
+          <select
+            id="translated-font-size-select"
+            className="language-select"
+            value={state.translatedFontSize}
+            onChange={handleTranslatedFontSizeChange}
+          >
+            {TRANSLATED_FONT_SIZE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.name}
               </option>
