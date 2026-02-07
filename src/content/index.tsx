@@ -122,8 +122,10 @@ class SubtitleTranslator {
   private isClosed = false; // 关闭状态
   private dragOffsetX = 0;
   private dragOffsetY = 0;
-  private position: SubtitlePosition = { bottom: 120, left: 0 }; // 距视频底部 120px，left=0 时 createOverlay 会计算居中
-  private overlayWidth = 800; // 固定宽度
+  private position: SubtitlePosition = { bottom: 120, left: 0 };
+  private overlayWidth = 800;
+  /** 为 true 时用 CSS 底部居中（left:50%+transform），不依赖像素 left */
+  private useDefaultPosition = true;
 
   // 字幕监听
   private observer: MutationObserver | null = null;
@@ -134,6 +136,10 @@ class SubtitleTranslator {
   // 广告检测
   private isAdPlaying = false;
   private adCheckInterval: number | null = null;
+
+  // overlay 创建重试
+  private createOverlayAttempts = 0;
+  private static readonly MAX_OVERLAY_ATTEMPTS = 15;
 
   // 翻译
   private cache = new TranslationCache();
@@ -156,13 +162,14 @@ class SubtitleTranslator {
       textAlign: normalizeTextAlign(result.textAlign),
     };
 
-    // 读取保存的位置
-    if (result.position) {
-      this.position = result.position;
-    } else {
-      // 计算默认位置（屏幕中下方）
-      // 需要等待播放器加载后再计算，这里先设置一个临时值
-      this.position = { bottom: 120, left: 0 };
+    // 读取位置：无保存或为默认占位则使用“默认底部居中”（CSS 百分比）；否则用保存的像素位置
+    const saved = result.position as SubtitlePosition | undefined;
+    if (saved && typeof saved.left === 'number' && typeof saved.bottom === 'number') {
+      const isDefaultPlaceholder = saved.left === 0 && saved.bottom === 120;
+      if (!isDefaultPlaceholder) {
+        this.position = saved;
+        this.useDefaultPosition = false;
+      }
     }
 
     // 读取关闭状态
@@ -313,23 +320,14 @@ class SubtitleTranslator {
         console.log('[YouTube Live Translate] 原文显示:', this.state.showOriginal);
       }
 
-      // Alt+R 重置位置
+      // Alt+R 重置为默认底部居中
       if (e.altKey && e.key === 'r') {
         e.preventDefault();
-        // 计算默认位置（距底部 120px，水平居中）
-        const player = this.overlay?.parentElement;
-        if (player) {
-          const rect = player.getBoundingClientRect();
-          this.position = {
-            bottom: 120,
-            left: rect.width / 2 - this.overlayWidth / 2
-          };
-        } else {
-          this.position = { bottom: 120, left: 400 };
-        }
+        this.useDefaultPosition = true;
+        this.position = { bottom: 120, left: 0 };
         this.savePosition();
         this.updateOverlayPosition();
-        console.log('[YouTube Live Translate] 位置已重置:', this.position);
+        console.log('[YouTube Live Translate] 位置已重置为默认居中');
       }
 
       // Alt+O 重新打开字幕
@@ -345,30 +343,56 @@ class SubtitleTranslator {
     });
   }
 
+  /** 查找播放器根节点（含 Shadow DOM），供 overlay 挂载 */
+  private findPlayer(): HTMLElement | null {
+    let player = document.querySelector('#movie_player') as HTMLElement | null;
+    if (player) return player;
+
+    const ytdPlayer = document.querySelector('ytd-player');
+    if (ytdPlayer?.shadowRoot) {
+      player = ytdPlayer.shadowRoot.querySelector('#movie_player') as HTMLElement | null;
+      if (player) return player;
+    }
+
+    return (document.querySelector('ytd-player') as HTMLElement) || null;
+  }
+
   private createOverlay() {
-    // 查找播放器容器
-    const player = document.querySelector('#movie_player') || document.querySelector('ytd-player');
+    if (this.overlay) return;
+
+    const player = this.findPlayer();
     if (!player) {
-      console.error('[YouTube Live Translate] 未找到播放器容器');
+      this.createOverlayAttempts += 1;
+      if (this.createOverlayAttempts >= SubtitleTranslator.MAX_OVERLAY_ATTEMPTS) {
+        console.error('[YouTube Live Translate] 多次未找到播放器，停止重试');
+        return;
+      }
+      console.warn('[YouTube Live Translate] 未找到播放器，2 秒后重试');
+      setTimeout(() => this.createOverlay(), 2000);
       return;
     }
 
-    // 计算默认位置（如果没有保存的位置或位置是初始值）
-    const playerRect = player.getBoundingClientRect();
-    if (this.position.left === 0 && playerRect.width > 0) {
-      // 居中显示在中下方
-      this.position = {
-        bottom: 120,
-        left: Math.max(20, (playerRect.width - this.overlayWidth) / 2)
-      };
-      // 保存计算出的默认位置
-      this.savePosition();
+    const playerEl = player as HTMLElement;
+    const pos = window.getComputedStyle(playerEl).position;
+    if (pos === 'static') {
+      playerEl.style.position = 'relative';
     }
 
-    // 创建 overlay 容器
+    // 全尺寸包装层，与播放器同大，使 overlay 的 left:50% 相对播放器居中
+    const wrapper = document.createElement('div');
+    wrapper.id = 'yt-live-translate-wrapper';
+    wrapper.style.cssText = `
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9998;
+    `;
+
     this.overlay = document.createElement('div');
     this.overlay.id = 'yt-live-translate-overlay';
-    this.updateOverlayPosition();
     this.overlay.style.cssText = `
       width: ${this.overlayWidth}px;
       height: auto;
@@ -378,6 +402,7 @@ class SubtitleTranslator {
       position: absolute;
       display: none;
     `;
+    this.updateOverlayPosition();
 
     // 创建字幕框
     this.subtitleBox = document.createElement('div');
@@ -403,12 +428,13 @@ class SubtitleTranslator {
     closeButton.innerHTML = '✕';
     closeButton.style.cssText = `
       position: absolute;
-      top: 6px;
+      top: 50%;
       right: 10px;
+      transform: translateY(-50%);
       width: 24px;
       height: 24px;
       border: none;
-      background: rgba(255, 255, 255, 0.1);
+      background: transparent;
       color: rgba(255, 255, 255, 0.7);
       border-radius: 50%;
       cursor: pointer;
@@ -423,11 +449,11 @@ class SubtitleTranslator {
       z-index: 10;
     `;
     closeButton.addEventListener('mouseenter', () => {
-      closeButton.style.background = 'rgba(255, 100, 100, 0.3)';
+      closeButton.style.background = 'rgba(255, 100, 100, 0.15)';
       closeButton.style.color = 'white';
     });
     closeButton.addEventListener('mouseleave', () => {
-      closeButton.style.background = 'rgba(255, 255, 255, 0.1)';
+      closeButton.style.background = 'transparent';
       closeButton.style.color = 'rgba(255, 255, 255, 0.7)';
     });
     closeButton.addEventListener('click', (e) => {
@@ -485,19 +511,27 @@ class SubtitleTranslator {
       text-overflow: ellipsis;
     `;
 
-    // 组装 DOM
+    // 组装 DOM：overlay 放入 wrapper，wrapper 放入播放器
     this.subtitleBox.appendChild(this.originalLine);
     this.subtitleBox.appendChild(this.translatedLine);
     this.overlay.appendChild(this.subtitleBox);
-    player.appendChild(this.overlay);
+    wrapper.appendChild(this.overlay);
+    player.appendChild(wrapper);
 
-    console.log('[YouTube Live Translate] Overlay 已创建');
+    console.log('[YouTube Live Translate] Overlay 已创建，默认居中:', this.useDefaultPosition);
   }
 
   private updateOverlayPosition() {
     if (!this.overlay) return;
-    this.overlay.style.left = `${this.position.left}px`;
-    this.overlay.style.bottom = `${this.position.bottom}px`;
+    if (this.useDefaultPosition) {
+      this.overlay.style.left = '50%';
+      this.overlay.style.transform = 'translateX(-50%)';
+      this.overlay.style.bottom = '120px';
+    } else {
+      this.overlay.style.left = `${this.position.left}px`;
+      this.overlay.style.bottom = `${this.position.bottom}px`;
+      this.overlay.style.transform = '';
+    }
   }
 
   private savePosition() {
@@ -505,25 +539,35 @@ class SubtitleTranslator {
   }
 
   private handleMouseDown(e: MouseEvent) {
-    // 检查点击目标是否是关闭按钮或文本区域
     const target = e.target as HTMLElement;
     if (target.tagName === 'BUTTON' || target.id === 'yt-live-translate-original' || target.id === 'yt-live-translate-translated') {
-      return; // 不触发拖拽
+      return;
     }
 
     e.preventDefault();
     e.stopPropagation();
 
+    // 若当前是“默认居中”模式，先拍下当前像素位置再切到像素模式，避免拖拽时跳动
+    if (this.useDefaultPosition && this.overlay?.parentElement) {
+      const parent = this.overlay.parentElement;
+      const parentRect = parent.getBoundingClientRect();
+      const overlayRect = this.overlay.getBoundingClientRect();
+      this.position = {
+        left: overlayRect.left - parentRect.left,
+        bottom: parentRect.bottom - overlayRect.bottom,
+      };
+      this.useDefaultPosition = false;
+      this.updateOverlayPosition();
+    }
+
     console.log('[YouTube Live Translate] 开始拖拽');
 
     this.isDragging = true;
 
-    // 计算鼠标点击位置相对于 overlay 的偏移
     if (this.overlay) {
       const rect = this.overlay.getBoundingClientRect();
-      // 记录鼠标在 overlay 内部的偏移
       this.dragOffsetX = e.clientX - rect.left;
-      this.dragOffsetY = rect.bottom - e.clientY; // 注意：这里用 bottom - clientY
+      this.dragOffsetY = rect.bottom - e.clientY;
     }
 
     // 改变光标样式

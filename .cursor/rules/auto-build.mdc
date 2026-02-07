@@ -1,0 +1,18 @@
+---
+description: 完成代码修改后自动执行一次生产构建
+alwaysApply: true
+---
+
+# 修改后自动构建
+
+在本项目中完成任意源代码或配置的修改后，**必须**执行一次生产构建：
+
+```bash
+npm run build
+```
+
+适用场景包括但不限于：
+- 修改 `src/` 下任意文件（content、popup、background）
+- 修改 `webpack.config.js`、`tsconfig.json`、`public/` 等
+
+完成编辑并确认无语法/类型错误后，在回复用户前运行上述命令并简要说明构建结果。
