@@ -329,36 +329,26 @@ class SubtitleTranslator {
     checkForAds();
   }
 
+  /** 快捷键修饰键：Windows/Linux 用 Alt，Mac 用 Option 或 Command 均可 */
+  private isShortcutModifier(e: KeyboardEvent): boolean {
+    return e.altKey || e.metaKey;
+  }
+
   private setupKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-      // Alt+T 切换原文显示
-      if (e.altKey && e.key === 't') {
-        e.preventDefault();
-        this.state.showOriginal = !this.state.showOriginal;
-        chrome.storage.sync.set({ showOriginal: this.state.showOriginal });
-        this.updateOriginalVisibility();
-        console.log('[YouTube Live Translate] 原文显示:', this.state.showOriginal);
-      }
+      const key = e.key.toLowerCase();
+      if (!this.isShortcutModifier(e)) return;
 
-      // Alt+R 重置为默认底部居中
-      if (e.altKey && e.key === 'r') {
+      // Modifier + E：开启/关闭插件（切换翻译启用状态）
+      if (key === 'e') {
         e.preventDefault();
-        this.useDefaultPosition = true;
-        this.position = { bottom: 120, left: 0 };
-        this.savePosition();
-        this.updateOverlayPosition();
-        console.log('[YouTube Live Translate] 位置已重置为默认居中');
-      }
-
-      // Alt+O 重新打开字幕
-      if (e.altKey && e.key === 'o') {
-        e.preventDefault();
-        this.isClosed = false;
-        chrome.storage.sync.set({ isClosed: false });
-        if (this.overlay) {
+        this.state.enabled = !this.state.enabled;
+        chrome.storage.sync.set({ enabled: this.state.enabled });
+        this.toggleTranslation();
+        if (this.state.enabled && !this.isClosed && this.overlay) {
           this.overlay.style.display = 'block';
         }
-        console.log('[YouTube Live Translate] 字幕已重新打开');
+        console.log('[YouTube Live Translate] 翻译', this.state.enabled ? '已开启' : '已关闭');
       }
     });
   }

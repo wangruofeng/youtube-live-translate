@@ -36,6 +36,12 @@ interface StorageData {
   // 隐藏 YouTube 原字幕
   hideOriginalSubtitles?: boolean;
   
+  // 翻译内容对齐：'left' | 'center' | 'right'
+  textAlign?: string;
+  
+  // 译文字体大小：'small' | 'medium' | 'large'，默认 'medium'
+  translatedFontSize?: string;
+  
   // 字幕位置
   position?: {
     bottom: number;
@@ -126,6 +132,16 @@ class SubtitleTranslator {
         this.state.hideOriginalSubtitles = changes.hideOriginalSubtitles.newValue;
         this.updateOriginalSubtitlesVisibility();
       }
+      
+      if (changes.textAlign) {
+        this.state.textAlign = changes.textAlign.newValue;
+        this.updateTextAlign();
+      }
+      
+      if (changes.translatedFontSize) {
+        this.state.translatedFontSize = changes.translatedFontSize.newValue;
+        this.updateTranslatedFontSize();
+      }
     });
   }
 }
@@ -180,10 +196,8 @@ private setupKeyboardShortcuts(): void
 
 **说明**：注册全局快捷键。
 
-**快捷键列表**：
-- `Alt + T` - 切换原文显示
-- `Alt + R` - 重置位置
-- `Alt + O` - 重新打开字幕
+**快捷键**：
+- `Modifier + E` - 开启/关闭插件（切换翻译启用状态）；Modifier 为 Alt（Windows/Linux）或 Option/Command（Mac）
 
 ##### 字幕监听
 
@@ -212,7 +226,7 @@ private handleSubtitleChange(selector: string): void
 **说明**：处理字幕变化事件。
 
 **处理流程**：
-1. 节流检查（100ms）
+1. 节流检查（60ms）
 2. 去重检查
 3. 场景判断（新句子/超长/不同/追加）
 4. 翻译决策
@@ -233,7 +247,7 @@ private async requestTranslation(text: string): Promise<void>
 1. 生成序列号
 2. 检查缓存
 3. 检查队列
-4. 限流检查（1秒）
+4. 限流检查（500ms）
 5. 调用翻译 API
 6. 序列号验证
 7. 更新 UI
@@ -302,6 +316,18 @@ private updateOriginalSubtitlesVisibility(): void
 ```
 
 **说明**：更新 YouTube 原生字幕可见性。
+
+```typescript
+private updateTextAlign(): void
+```
+
+**说明**：更新原文与译文的文本对齐方式（左/中/右）。
+
+```typescript
+private updateTranslatedFontSize(): void
+```
+
+**说明**：更新译文字体大小（小 14px / 中 18px / 大 22px）。
 
 ##### 拖拽相关
 

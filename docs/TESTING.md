@@ -119,6 +119,8 @@ describe('App Component', () => {
     expect(screen.getByText(/目标语言/)).toBeInTheDocument();
     expect(screen.getByText(/显示原文/)).toBeInTheDocument();
     expect(screen.getByText(/隐藏 YouTube 原字幕/)).toBeInTheDocument();
+    expect(screen.getByText(/翻译内容对齐/)).toBeInTheDocument();
+    expect(screen.getByText(/译文字体大小/)).toBeInTheDocument();
   });
   
   it('should toggle enabled state', async () => {
@@ -235,6 +237,17 @@ describe('Settings Sync', () => {
   - [ ] 关闭后 YouTube 字幕显示
   - [ ] 动态更新的字幕也被隐藏
 
+- [ ] **翻译内容对齐**
+  - [ ] 左对齐、居中对齐、右对齐可选
+  - [ ] 切换后原文与译文对齐方式立即更新
+  - [ ] 设置被保存并持久化
+
+- [ ] **译文字体大小**
+  - [ ] 小（14px）/ 中（18px）/ 大（22px）可选
+  - [ ] 默认值为「中」
+  - [ ] 切换后译文字体大小立即更新
+  - [ ] 设置被保存并持久化
+
 #### 交互功能
 
 - [ ] **拖拽定位**
@@ -248,14 +261,11 @@ describe('Settings Sync', () => {
 - [ ] **关闭/打开字幕**
   - [ ] 点击关闭按钮字幕隐藏
   - [ ] 关闭状态被保存
-  - [ ] 使用 Alt+O 重新打开
   - [ ] 关闭按钮有悬停效果
 
 - [ ] **快捷键**
-  - [ ] Alt+T 切换原文显示
-  - [ ] Alt+R 重置位置
-  - [ ] Alt+O 重新打开字幕
-  - [ ] 快捷键不与浏览器冲突
+  - [ ] Modifier+E（Alt/E 或 Option/Cmd+E）可开启/关闭插件
+  - [ ] 快捷键不与浏览器冲突（Mac 上 Cmd+E 可能被占用时可用 Option+E）
 
 #### 特殊场景
 

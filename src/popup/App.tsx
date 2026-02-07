@@ -218,7 +218,7 @@ const App: React.FC = () => {
             💡 在 YouTube 视频页面，字幕会自动显示翻译
           </p>
           <p className="info-text">
-            ⌨️ 快捷键：Alt+T 显示/隐藏原文 | Alt+R 重置位置 | Alt+O 重新打开字幕
+            ⌨️ 快捷键：Alt/Option/Cmd + E 开启/关闭插件（兼容 Mac / Windows）
           </p>
         </div>
       </main>

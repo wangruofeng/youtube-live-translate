@@ -100,7 +100,7 @@ youtube-live-translate/
 │   │   └── popup.css       # 样式文件
 │   │
 │   ├── content/            # 内容脚本
-│   │   └── index.tsx       # 核心逻辑（800+ 行）
+│   │   └── index.tsx       # 核心逻辑（约 1060 行）
 │   │
 │   └── background/         # 后台脚本
 │       └── index.ts        # Service Worker
@@ -132,18 +132,27 @@ youtube-live-translate/
 **主要类**：
 ```typescript
 class SubtitleTranslator {
-  // 状态管理
+  // 状态管理（含 enabled, targetLang, showOriginal, hideOriginalSubtitles, textAlign, translatedFontSize）
   private state: TranslationState
   
-  // UI 元素
+  // UI 元素（wrapper 为全尺寸定位层，overlay 挂在其内，实现默认底部居中）
+  private wrapper: HTMLDivElement
   private overlay: HTMLDivElement
   private subtitleBox: HTMLDivElement
   private originalLine: HTMLDivElement
   private translatedLine: HTMLDivElement
   
+  // 定位（useDefaultPosition 为 true 时用 CSS 百分比居中）
+  private position: SubtitlePosition
+  private useDefaultPosition: boolean
+  
   // 字幕监听
   private observer: MutationObserver
   private checkInterval: number
+  
+  // 播放器查找（含 Shadow DOM）与 overlay 创建重试
+  private findPlayer(): HTMLElement | null
+  private createOverlayAttempts: number
   
   // 翻译
   private cache: TranslationCache
@@ -166,6 +175,8 @@ const App: React.FC = () => {
     targetLang: 'zh-CN',
     showOriginal: false,
     hideOriginalSubtitles: false,
+    textAlign: 'center',
+    translatedFontSize: 'medium',
   });
   
   // 处理函数
@@ -173,6 +184,8 @@ const App: React.FC = () => {
   const handleLanguageChange = () => { ... }
   const handleShowOriginalToggle = () => { ... }
   const handleHideOriginalSubtitlesToggle = () => { ... }
+  const handleTextAlignChange = () => { ... }
+  const handleTranslatedFontSizeChange = () => { ... }
 }
 ```
 
@@ -215,11 +228,17 @@ const selectors = [
 
 #### 定时器兜底
 
+字幕轮询间隔 120ms，提高实时性：
+
 ```typescript
 this.checkInterval = window.setInterval(() => {
   this.handleSubtitleChange(selector);
-}, 200);
+}, 120);
 ```
+
+#### 播放器查找与 Shadow DOM
+
+播放器可能位于 Shadow DOM 内，需优先查找 `#movie_player`，再在 `ytd-player.shadowRoot` 内查找；未找到时每 2 秒重试创建 overlay，最多 15 次。
 
 ### 2. 翻译模块
 
@@ -325,12 +344,17 @@ class TranslationCache {
 
 #### DOM 结构
 
+翻译控件挂载在播放器（`#movie_player` 或 `ytd-player`）下，通过全尺寸 wrapper 实现默认底部居中（`left: 50%` + `transform: translateX(-50%)` + `bottom: 120px`）：
+
 ```html
-<div id="yt-live-translate-overlay">  <!-- 外层容器 -->
-  <div id="yt-live-translate-box">     <!-- 字幕框 -->
-    <button>✕</button>                  <!-- 关闭按钮 -->
-    <div id="yt-live-translate-original"></div>    <!-- 原文 -->
-    <div id="yt-live-translate-translated"></div>   <!-- 译文 -->
+<!-- 播放器 #movie_player / ytd-player -->
+<div id="yt-live-translate-wrapper">   <!-- 全尺寸定位层 100%×100% -->
+  <div id="yt-live-translate-overlay">  <!-- 字幕 overlay，可拖拽 -->
+    <div id="yt-live-translate-box">   <!-- 字幕框 -->
+      <button>✕</button>               <!-- 关闭按钮，垂直居中、背景透明 -->
+      <div id="yt-live-translate-original"></div>   <!-- 原文 -->
+      <div id="yt-live-translate-translated"></div> <!-- 译文，字体大小可配置 -->
+    </div>
   </div>
 </div>
 ```
