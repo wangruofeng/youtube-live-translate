@@ -121,9 +121,11 @@ youtube-live-translate/
 ├── src/
 │   ├── popup/          # 弹窗界面
 │   │   ├── App.tsx
+│   │   ├── index.tsx
 │   │   └── popup.css
 │   ├── content/        # 内容脚本
-│   │   └── index.tsx
+│   │   ├── index.tsx
+│   │   └── content.css
 │   └── background/     # 后台脚本
 │       └── index.ts
 ├── dist/              # 构建输出

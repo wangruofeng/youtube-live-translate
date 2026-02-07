@@ -100,7 +100,8 @@ youtube-live-translate/
 │   │   └── popup.css       # 样式文件
 │   │
 │   ├── content/            # 内容脚本
-│   │   └── index.tsx       # 核心逻辑（约 1060 行）
+│   │   ├── index.tsx       # 核心逻辑（约 1050 行）
+│   │   └── content.css     # 内容脚本样式（若使用）
 │   │
 │   └── background/         # 后台脚本
 │       └── index.ts        # Service Worker

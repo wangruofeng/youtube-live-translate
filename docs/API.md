@@ -327,7 +327,7 @@ private updateTextAlign(): void
 private updateTranslatedFontSize(): void
 ```
 
-**说明**：更新译文字体大小（小 14px / 中 18px / 大 22px）。
+**说明**：更新译文字体大小（小 18px / 中 22px / 大 26px）。
 
 ##### 拖拽相关
 
