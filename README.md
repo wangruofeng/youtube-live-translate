@@ -1,164 +1,141 @@
 # YouTube Live Translate
 
-> 🌍 YouTube 实时字幕翻译 Chrome 扩展 - 打破语言障碍，畅享全球视频内容
+> 🌍 Chrome extension for real-time YouTube subtitle translation — break language barriers and enjoy global video content.
 
-[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://github.com/yourusername/youtube-live-translate)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://github.com/wangruofeng/youtube-live-translate)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/yourusername/youtube-live-translate)
+[![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/wangruofeng/youtube-live-translate)
 
-## ✨ 功能特性
+**中文说明请见 [README_ZH.md](README_ZH.md)。**
 
-### 🎯 核心功能
+## ✨ Features
 
-- **实时字幕翻译** - 自动监听 YouTube 字幕并实时翻译成目标语言
-- **双行显示** - 原文和译文同时显示，原文在上，译文在下
-- **智能刷新** - 追加模式刷新，只在必要时更新界面，避免闪烁
-- **拖拽定位** - 支持拖拽字幕控件到任意位置，位置自动保存
-- **广告检测** - 自动检测广告播放，广告期间隐藏字幕
-- **隐藏原字幕** - 可选择隐藏 YouTube 原生字幕，只显示翻译
+### 🎯 Core
 
-### ⌨️ 快捷键
+- **Real-time subtitle translation** — Listens to YouTube captions and translates into your target language on the fly
+- **Dual-line display** — Original text on top, translation below
+- **Smart refresh** — Updates only when needed to avoid flicker
+- **Draggable overlay** — Move the subtitle box anywhere; position is saved
+- **Ad detection** — Hides the overlay during YouTube ads
+- **Hide original captions** — Option to hide YouTube’s built-in captions and show only the translation
 
-- **开启/关闭插件**：`Alt + E`（Windows/Linux）或 `Option + E` / `Command + E`（Mac），用于快速切换翻译启用状态
+### ⌨️ Shortcut
 
-### 🌐 支持语言
+- **Toggle extension on/off**: `Alt + E` (Windows/Linux) or `Option + E` / `Command + E` (Mac)
 
-简体中文、繁體中文、English、日本語、한국어、Español、Français、Deutsch、Русский、العربية
+### 🌐 Languages
 
-## 📸 界面预览
+Simplified Chinese, Traditional Chinese, English, Japanese, Korean, Spanish, French, German, Russian, Arabic
+
+## 📸 Preview
 
 ```
 ┌────────────────────────────────────────┐
-│  ━━━                                 │ ← 拖拽区域
-│  原文：Oh boy. Okay. No. uh Nvidia... │ ← 原文（半透明白色）
-│  译文：天哪。好吧。不，呃，英伟达... │ ← 译文（白色，最大2行）
-│                              ✕       │ ← 关闭按钮
+│  ━━━                                 │ ← Drag area
+│  Original: Oh boy. Okay. No. uh...    │ ← Original (semi-transparent)
+│  Translation: 天哪。好吧。不，呃...   │ ← Translation (white, max 2 lines)
+│                              ✕       │ ← Close button
 └────────────────────────────────────────┘
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 安装方法
+### Install
 
-1. 下载最新版本的 [youtube-live-translate.zip](https://github.com/yourusername/youtube-live-translate/releases)
+1. Download the latest [youtube-live-translate.zip](https://github.com/wangruofeng/youtube-live-translate/releases) (or clone the repo and run `npm run build`)
+2. Unzip (if needed)
+3. Open Chrome and go to `chrome://extensions/`
+4. Turn on **Developer mode**
+5. Click **Load unpacked** and select the extension folder (e.g. `dist/` after build)
+6. Pin the extension icon if you like
 
-2. 解压文件
+### Use
 
-3. 打开 Chrome 浏览器，访问 `chrome://extensions/`
+1. Open a YouTube video and turn on captions
+2. The translation overlay appears at the bottom center of the player
+3. Click the extension icon to open settings:
+   - Enable/disable translation
+   - Target language
+   - Show/hide original text
+   - Hide YouTube’s original captions
+   - Text alignment (left / center / right)
+   - Translation font size (small / medium / large)
 
-4. 开启"开发者模式"
+## 🛠️ Tech Stack
 
-5. 点击"加载已解压的扩展程序"
+- **Chrome Extension Manifest V3**
+- **React 18** — Popup UI
+- **TypeScript**
+- **Webpack 5**
+- **Google Translate API** (public endpoint) for translation
 
-6. 选择解压后的文件夹
+## 📖 Docs
 
-### 使用方法
+- [Product & features (中文)](docs/PRODUCT.md)
+- [Architecture (中文)](docs/ARCHITECTURE.md)
+- [Testing (中文)](docs/TESTING.md)
+- [API (中文)](docs/API.md)
+- [Changelog](docs/CHANGELOG.md)
 
-1. 访问 YouTube 并播放带有字幕的视频
+## 🔧 Development
 
-2. 字幕翻译控件会自动出现在屏幕中下方
-
-3. 点击浏览器工具栏的扩展图标打开设置面板
-
-4. 在设置面板中可以：
-   - 启用/禁用翻译
-   - 选择目标语言
-   - 显示/隐藏原文
-   - 隐藏 YouTube 原字幕
-   - 翻译内容对齐（左/中/右）
-   - 译文字体大小（小/中/大，默认中）
-
-## 🛠️ 技术栈
-
-- **Chrome Extension Manifest V3** - 最新的扩展程序标准
-- **React 18** - UI 框架
-- **TypeScript** - 类型安全的开发体验
-- **Webpack 5** - 模块打包工具
-- **Google Translate API** - 翻译服务
-
-## 📖 文档
-
-- [产品功能文档](docs/PRODUCT.md) - 详细的功能说明和使用指南
-- [技术架构文档](docs/ARCHITECTURE.md) - 系统架构和技术实现
-- [测试文档](docs/TESTING.md) - 测试计划和测试用例
-- [API 文档](docs/API.md) - 接口说明和开发指南
-- [更新日志](docs/CHANGELOG.md) - 版本更新记录
-
-## 🔧 开发
-
-### 环境要求
+### Requirements
 
 - Node.js >= 16
 - npm >= 8
 
-### 本地开发
+### Commands
 
 ```bash
-# 克隆项目
-git clone https://github.com/yourusername/youtube-live-translate.git
+git clone https://github.com/wangruofeng/youtube-live-translate.git
 cd youtube-live-translate
 
-# 安装依赖
 npm install
-
-# 开发模式（热重载）
-npm run dev
-
-# 生产构建
-npm run build
-
-# 构建并打包
-npm run build && zip -r youtube-live-translate.zip dist/
+npm run dev    # watch mode
+npm run build  # production build
+# Optional: npm run build && zip -r youtube-live-translate.zip dist/
 ```
 
-### 项目结构
+### Project structure
 
 ```
 youtube-live-translate/
-├── public/              # 静态资源
-│   ├── manifest.json   # 扩展配置
-│   └── icons/          # 图标资源
+├── public/           # Static assets, manifest, icons
 ├── src/
-│   ├── popup/          # 弹窗界面
-│   │   ├── App.tsx
-│   │   ├── index.tsx
-│   │   └── popup.css
-│   ├── content/        # 内容脚本
-│   │   ├── index.tsx
-│   │   └── content.css
-│   └── background/     # 后台脚本
-│       └── index.ts
-├── dist/              # 构建输出
-├── docs/              # 文档
-└── webpack.config.js  # 构建配置
+│   ├── popup/        # Extension popup (React)
+│   ├── content/      # Injected script (YouTube page)
+│   └── background/   # Service worker
+├── dist/             # Build output
+├── docs/             # Documentation (Chinese)
+└── webpack.config.js
 ```
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome.
 
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
+1. Fork the repo
+2. Create a branch (`git checkout -b feature/AmazingFeature`)
+3. Commit (`git commit -m 'Add some AmazingFeature'`)
+4. Push (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 开源协议
+## 📄 License
 
-本项目采用 [MIT](LICENSE) 协议
+[MIT](LICENSE)
 
-## 🙏 致谢
+## 🙏 Thanks
 
-- [Google Translate](https://translate.google.com/) - 翻译服务
-- [YouTube](https://www.youtube.com/) - 视频平台
-- [Chrome Extension Docs](https://developer.chrome.com/docs/extensions/) - 官方文档
+- [Google Translate](https://translate.google.com/) — Translation
+- [YouTube](https://www.youtube.com/) — Video platform
+- [Chrome Extension docs](https://developer.chrome.com/docs/extensions/) — Official docs
 
-## 📮 联系方式
+## 📮 Contact
 
-- 作者: wangruofeng
-- 邮箱: wangruofeng007@gmail.com
-- 项目链接: [https://github.com/wangruofeng/youtube-live-translate](https://github.com/wangruofeng/youtube-live-translate)
+- **Author**: wangruofeng  
+- **Email**: wangruofeng007@gmail.com  
+- **Repo**: [github.com/wangruofeng/youtube-live-translate](https://github.com/wangruofeng/youtube-live-translate)
 
 ---
 
-⭐ 如果这个项目对你有帮助，请给它一个 Star！
+⭐ If this project helps you, give it a Star!
