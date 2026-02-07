@@ -10,3 +10,4 @@ dist/
 
 # 仅本地参考，不提交到 GitHub
 docs/WEB_FOR_APP_DEVS.md
+docs/IMAGE_PROCESSING_TOOLS.md
