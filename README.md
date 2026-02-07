@@ -153,9 +153,9 @@ youtube-live-translate/
 
 ## 📮 联系方式
 
-- 作者: Your Name
-- 邮箱: your.email@example.com
-- 项目链接: [https://github.com/yourusername/youtube-live-translate](https://github.com/yourusername/youtube-live-translate)
+- 作者: wangruofeng
+- 邮箱: wangruofeng007@gmail.com
+- 项目链接: [https://github.com/wangruofeng/youtube-live-translate](https://github.com/wangruofeng/youtube-live-translate)
 
 ---
 
