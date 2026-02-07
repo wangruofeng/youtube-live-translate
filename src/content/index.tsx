@@ -369,7 +369,7 @@ class SubtitleTranslator {
     this.subtitleBox.id = 'yt-live-translate-box';
     this.subtitleBox.style.cssText = `
       background: rgba(0, 0, 0, 0.6);
-      padding: 12px 20px;
+      padding: 12px 44px 12px 20px;
       padding-top: 8px;
       border-radius: 8px;
       display: flex;
@@ -395,7 +395,7 @@ class SubtitleTranslator {
       border: none;
       background: rgba(255, 255, 255, 0.1);
       color: rgba(255, 255, 255, 0.7);
-      border-radius: 4px;
+      border-radius: 50%;
       cursor: pointer;
       font-size: 16px;
       line-height: 1;
@@ -676,6 +676,36 @@ class SubtitleTranslator {
     console.log('[YouTube Live Translate] 开始监听字幕变化');
   }
 
+  /** 内容过长时按整句保留（从末尾取若干整句），避免截断单词。单句超长时再按单词边界截断。 */
+  private truncateBySentences(text: string, maxLength: number): string {
+    if (text.length <= maxLength) return text;
+    const segments = text.split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter(Boolean);
+    if (segments.length === 0) return this.truncateByWords(text, maxLength);
+    let result = '';
+    for (let i = segments.length - 1; i >= 0; i--) {
+      const next = result ? segments[i] + ' ' + result : segments[i];
+      if (next.length <= maxLength) {
+        result = next;
+      } else {
+        if (result) break;
+        result = this.truncateByWords(segments[i], maxLength);
+        break;
+      }
+    }
+    return result || this.truncateByWords(text, maxLength);
+  }
+
+  /** 按单词边界截断：取末尾 maxLength 内且在空格处截断，不切断单词。 */
+  private truncateByWords(text: string, maxLength: number): string {
+    if (text.length <= maxLength) return text;
+    const tail = text.slice(-maxLength);
+    const firstSpace = tail.indexOf(' ');
+    if (firstSpace > 0 && firstSpace < tail.length - 1) {
+      return tail.slice(firstSpace + 1).trim();
+    }
+    return tail;
+  }
+
   private handleSubtitleChange(selector: string) {
     if (!this.state.enabled || this.isVideoPaused || this.isAdPlaying) return;
 
@@ -706,39 +736,36 @@ class SubtitleTranslator {
     // 如果文本没有变化，不处理
     if (currentText === this.lastOriginalText) return;
 
+    // 首次有内容（刚载入或清空后）：必须刷新 UI 并触发翻译
+    const isFirstContent = this.lastOriginalText === '';
     // 检测是否是新句子（文本变短说明是新句子）
-    const isNewSentence = currentText.length < this.lastOriginalText.length;
+    const isNewSentence = !isFirstContent && currentText.length < this.lastOriginalText.length;
 
     let textToTranslate = currentText;
     let shouldRefreshUI = false;
-    let shouldTranslateImmediately = false; // 是否立即翻译
+    let shouldTranslateImmediately = false;
 
-    // 如果是新句子，直接使用
-    if (isNewSentence) {
+    if (isFirstContent) {
+      textToTranslate =
+        currentText.length > 200 ? this.truncateBySentences(currentText, 200) : currentText;
+      shouldRefreshUI = true;
+      shouldTranslateImmediately = currentText.length > 200;
+      console.log('[YouTube Live Translate] 首次内容，刷新UI并触发翻译');
+    } else if (isNewSentence) {
       textToTranslate = currentText;
       shouldRefreshUI = true;
-      this.lastTranslatedText = ''; // 清空已翻译记录
+      this.lastTranslatedText = '';
       console.log('[YouTube Live Translate] 新句子，刷新UI');
     } else if (currentText.length > 200) {
-      // 如果文本太长（超过200字符），截断并立即翻译
-      const maxLength = 150;
-      const truncated = currentText.slice(-maxLength);
-      const firstSpace = truncated.indexOf(' ');
-      if (firstSpace > 0 && firstSpace < 50) {
-        textToTranslate = truncated.slice(firstSpace + 1);
-      } else {
-        textToTranslate = truncated;
-      }
+      textToTranslate = this.truncateBySentences(currentText, 200);
       shouldRefreshUI = true;
-      shouldTranslateImmediately = true; // 立即翻译
-      console.log('[YouTube Live Translate] 文本过长，截断并立即翻译');
+      shouldTranslateImmediately = true;
+      console.log('[YouTube Live Translate] 文本过长，按整句截断并立即翻译');
     } else if (!currentText.includes(this.lastOriginalText)) {
-      // 如果当前文本不包含之前的文本，说明是完全不同的内容
       textToTranslate = currentText;
       shouldRefreshUI = true;
       console.log('[YouTube Live Translate] 内容不同，刷新UI');
     } else {
-      // 是追加的文本且未超过长度限制，不刷新UI
       textToTranslate = currentText;
       shouldRefreshUI = false;
       console.log('[YouTube Live Translate] 追加文本，不刷新UI');
