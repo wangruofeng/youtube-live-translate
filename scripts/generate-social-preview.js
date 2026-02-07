@@ -1,6 +1,10 @@
 /**
  * 生成 GitHub Social preview 图：1280x640（符合推荐尺寸）
- * 使用 public/icons/icon.svg 作为图标，并加上项目标题。
+ * 使用 public/icons/icon.svg 作为图标，并加上项目标题与副标题。
+ * 用法：
+ *   node generate-social-preview.js        # 生成中文版 social-preview.png
+ *   node generate-social-preview.js en     # 生成英文版 social-preview-en.png
+ *   node generate-social-preview.js all    # 同时生成中英文版
  */
 const sharp = require('sharp');
 const path = require('path');
@@ -10,7 +14,11 @@ const W = 1280;
 const H = 640;
 const rootDir = path.join(__dirname, '..');
 const iconSvgPath = path.join(rootDir, 'public', 'icons', 'icon.svg');
-const outPath = path.join(rootDir, 'social-preview.png');
+
+const COPY = {
+  zh: { subtitle: 'Chrome 扩展 · 实时字幕翻译', out: 'social-preview.png' },
+  en: { subtitle: 'Chrome extension · Real-time subtitle translation', out: 'social-preview-en.png' },
+};
 
 // 读取原始 icon.svg 的 <g>...</g>（含 transform 与 paths）
 function getIconGroup() {
@@ -19,9 +27,11 @@ function getIconGroup() {
   return match ? match[0] : '';
 }
 
-async function generate() {
+async function generateOne(locale) {
+  const { subtitle, out: outName } = COPY[locale];
+  const outPath = path.join(rootDir, outName);
+
   const iconGroup = getIconGroup();
-  // 图标在画布左侧，约 320px，原 viewBox 1024 → scale 320/1024
   const scale = 320 / 1024;
   const iconX = 80;
   const iconY = (H - 320) / 2;
@@ -39,19 +49,25 @@ async function generate() {
     ${iconGroup}
   </g>
   <text x="480" y="280" font-family="system-ui, -apple-system, sans-serif" font-size="56" font-weight="700" fill="#ffffff">YouTube Live Translate</text>
-  <text x="480" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#b0b0b0">Chrome 扩展 · 实时字幕翻译</text>
+  <text x="480" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#b0b0b0">${subtitle}</text>
 </svg>`;
 
-  // sharp 渲染 SVG 时可能对 transform 嵌套支持有限，改用简单方式：先做背景+图标，再叠加文字
-  // 实际上 librsvg 对嵌套 g 的 transform 支持可能有问题。改为：用 sharp 把 icon.svg 转成 320x320 png，再与 1280x640 背景合成，最后用 SVG 只画背景+文字，再与图标合成。或者一步用 SVG。
-  // 先尝试一步 SVG 输出
   const buf = Buffer.from(svgContent);
   await sharp(buf)
     .resize(W, H)
     .png()
     .toFile(outPath);
 
-  console.log('Generated social-preview.png (1280x640)');
+  console.log(`Generated ${outName} (1280x640, ${locale})`);
+}
+
+async function generate() {
+  const arg = (process.argv[2] || 'zh').toLowerCase();
+  const locales = arg === 'all' ? ['zh', 'en'] : [arg === 'en' ? 'en' : 'zh'];
+
+  for (const locale of locales) {
+    await generateOne(locale);
+  }
 }
 
 generate().catch((err) => {

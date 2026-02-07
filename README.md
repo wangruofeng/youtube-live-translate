@@ -29,7 +29,7 @@
 
 ## 📸 Preview
 
-![YouTube Live Translate](social-preview.png)
+![YouTube Live Translate](social-preview-en.png)
 
 ```
 ┌────────────────────────────────────────┐
