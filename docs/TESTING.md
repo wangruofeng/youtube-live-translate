@@ -115,12 +115,13 @@ describe('App Component', () => {
   it('should render all settings', () => {
     render(<App />);
     
-    expect(screen.getByText(/启用翻译/)).toBeInTheDocument();
-    expect(screen.getByText(/目标语言/)).toBeInTheDocument();
-    expect(screen.getByText(/显示原文/)).toBeInTheDocument();
-    expect(screen.getByText(/隐藏 YouTube 原字幕/)).toBeInTheDocument();
-    expect(screen.getByText(/翻译内容对齐/)).toBeInTheDocument();
-    expect(screen.getByText(/译文字体大小/)).toBeInTheDocument();
+    expect(screen.getByText(/启用翻译|Enable translation/)).toBeInTheDocument();
+    expect(screen.getByText(/目标语言|Target language/)).toBeInTheDocument();
+    expect(screen.getByText(/显示原文|Show original/)).toBeInTheDocument();
+    expect(screen.getByText(/隐藏 YouTube 原字幕|Hide YouTube captions/)).toBeInTheDocument();
+    expect(screen.getByText(/翻译内容对齐|Text alignment/)).toBeInTheDocument();
+    expect(screen.getByText(/译文字体大小|Translated font size/)).toBeInTheDocument();
+    expect(screen.getByText(/界面语言|UI language/)).toBeInTheDocument();
   });
   
   it('should toggle enabled state', async () => {
@@ -246,6 +247,11 @@ describe('Settings Sync', () => {
   - [ ] 小（18px）/ 中（22px）/ 大（26px）可选
   - [ ] 默认值为「中」
   - [ ] 切换后译文字体大小立即更新
+  - [ ] 设置被保存并持久化
+
+- [ ] **界面语言**
+  - [ ] English / 简体中文 / 繁體中文 可选
+  - [ ] 切换后弹窗文案立即更新
   - [ ] 设置被保存并持久化
 
 #### 交互功能
@@ -380,8 +386,8 @@ window.fetch = function(...args) {
 
 - [ ] 缓存命中率 > 60%
 - [ ] 避免重复翻译相同文本
-- [ ] 节流机制生效（100ms）
-- [ ] 防抖机制生效（300ms）
+- [ ] 节流机制生效（60ms）
+- [ ] 防抖机制生效（180ms）
 - [ ] 序列号机制正确丢弃过期结果
 
 ## 兼容性测试
@@ -572,5 +578,5 @@ jobs:
 ---
 
 **文档版本**: 1.0.0  
-**最后更新**: 2026-02-07  
+**最后更新**: 2026-02-08  
 **维护者**: YouTube Live Translate Team

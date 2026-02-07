@@ -11,7 +11,7 @@ export const UI_LOCALE_OPTIONS: { value: UiLocale; label: string }[] = [
 
 const strings = {
   en: {
-    title: 'YouTube Subtitle Translate',
+    title: 'Subtitle Translate',
     enableTranslation: 'Enable translation',
     enabled: 'On',
     disabled: 'Off',
@@ -27,6 +27,8 @@ const strings = {
     sizeMedium: 'Medium',
     sizeLarge: 'Large',
     uiLanguage: 'UI language',
+    groupToggles: 'Switches',
+    groupOptions: 'Options',
     tipSubtitle: 'On YouTube video pages, subtitles are translated automatically.',
     tipShortcut: 'Shortcut: Alt/Option/Cmd + E to toggle (Mac / Windows).',
     ariaToggle: 'Toggle',
@@ -34,7 +36,7 @@ const strings = {
     ariaDisable: 'Disable',
   },
   'zh-CN': {
-    title: 'YouTube 字幕翻译',
+    title: '字幕翻译',
     enableTranslation: '启用翻译',
     enabled: '已启用',
     disabled: '已禁用',
@@ -50,6 +52,8 @@ const strings = {
     sizeMedium: '中',
     sizeLarge: '大',
     uiLanguage: '界面语言',
+    groupToggles: '开关',
+    groupOptions: '选项',
     tipSubtitle: '在 YouTube 视频页面，字幕会自动显示翻译',
     tipShortcut: '快捷键：Alt/Option/Cmd + E 开启/关闭插件（兼容 Mac / Windows）',
     ariaToggle: '切换',
@@ -57,7 +61,7 @@ const strings = {
     ariaDisable: '禁用',
   },
   'zh-TW': {
-    title: 'YouTube 字幕翻譯',
+    title: '字幕翻譯',
     enableTranslation: '啟用翻譯',
     enabled: '已啟用',
     disabled: '已停用',
@@ -73,6 +77,8 @@ const strings = {
     sizeMedium: '中',
     sizeLarge: '大',
     uiLanguage: '介面語言',
+    groupToggles: '開關',
+    groupOptions: '選項',
     tipSubtitle: '在 YouTube 影片頁面，字幕會自動顯示翻譯',
     tipShortcut: '快捷鍵：Alt/Option/Cmd + E 開啟/關閉外掛（相容 Mac / Windows）',
     ariaToggle: '切換',

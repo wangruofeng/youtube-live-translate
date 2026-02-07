@@ -133,17 +133,17 @@
 |------|------|
 | 代码行数 | ~1050 行（content/index.tsx） |
 | 核心模块 | 3 个 |
-| 支持语言 | 10 种 |
-| 文档数量 | 5 份 |
+| 支持语言 | 30+ 种目标语言，弹窗 UI 3 种（en/zh-CN/zh-TW） |
+| 文档数量 | 6 份（含 INDEX） |
 | 快捷键 | 1 个（Modifier+E 开启/关闭插件） |
-| 设置项 | 6 项（启用、目标语言、原文、隐藏原字幕、对齐、译文字体大小） |
+| 设置项 | 7 项（启用、界面语言、目标语言、原文、隐藏原字幕、对齐、译文字体大小） |
 
 ## 🔗 快速链接
 
 ### 开发相关
 
-- **项目仓库**: [GitHub](https://github.com/yourusername/youtube-live-translate)
-- **问题反馈**: [Issues](https://github.com/yourusername/youtube-live-translate/issues)
+- **项目仓库**: [GitHub](https://github.com/wangruofeng/youtube-live-translate)
+- **问题反馈**: [Issues](https://github.com/wangruofeng/youtube-live-translate/issues)
 - **Chrome Web Store**: [商店链接](https://chrome.google.com/webstore)
 
 ### 技术资源
@@ -200,12 +200,12 @@ graph LR
 
 如有疑问，请通过以下方式联系：
 
-- 📧 Email: your.email@example.com
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/youtube-live-translate/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/youtube-live-translate/discussions)
+- 📧 Email: wangruofeng007@gmail.com
+- 🐛 Issues: [GitHub Issues](https://github.com/wangruofeng/youtube-live-translate/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/wangruofeng/youtube-live-translate/discussions)
 
 ---
 
-**最后更新**: 2026-02-07  
+**最后更新**: 2026-02-08  
 **文档版本**: 1.0.0  
 **维护团队**: YouTube Live Translate Team

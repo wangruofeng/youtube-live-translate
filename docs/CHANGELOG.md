@@ -1,5 +1,27 @@
 # 更新日志
 
+## [1.0.2] - 2026-02-08
+
+### 文档与资源（基于最新代码刷新）
+
+- **README / README_ZH**
+  - 修复 Preview 小节结构，统一使用 social-preview.png 预览图
+  - 补充 30+ 目标语言与弹窗 UI 三语（en/zh-CN/zh-TW）
+  - 补充界面语言设置说明
+  - 补充脚本：`npm run icons`、`npm run social-preview`、`npm run clean`
+  - 项目结构补充 scripts/、social-preview.png、icons 多尺寸、locales.ts
+  - 仓库链接统一为 wangruofeng/youtube-live-translate
+
+- **docs/**
+  - INDEX：设置项 7（含界面语言）、支持语言 30+、文档与联系方式更新
+  - PRODUCT：界面语言控件说明、支持语言列表扩展、FAQ 更新
+  - ARCHITECTURE：图标 16/32/48/128/512、scripts、locales、节流 60ms/防抖 180ms/限流 500ms、构建流程去掉 Babel
+  - API：StorageData / PopupState / TranslationState 增加 uiLanguage、textAlign、translatedFontSize；时间常量与代码一致
+  - TESTING：界面语言测试项、节流/防抖数值更新
+  - 各文档「最后更新」统一为 2026-02-08
+
+---
+
 ## [1.0.1] - 2026-02-07
 
 ### 文档与代码同步
@@ -266,5 +288,5 @@ PATCH    - 向下兼容的问题修复
 ---
 
 **文档版本**: 1.0.0  
-**最后更新**: 2026-02-07  
+**最后更新**: 2026-02-08  
 **维护者**: YouTube Live Translate Team

@@ -119,10 +119,16 @@ YouTube Live Translate 是一款 Chrome 浏览器扩展，为 YouTube 视频提�
 - 默认状态：开启
 - 说明：控制是否启用字幕翻译功能
 
+**界面语言**
+- 类型：下拉选择
+- 可选：English、简体中文、繁體中文
+- 默认值：English
+- 说明：弹窗设置面板的显示语言（不影响翻译目标语言）
+
 **目标语言**
 - 类型：下拉选择
 - 默认值：简体中文
-- 可选：10 种语言
+- 可选：30+ 种语言（见下方支持语言列表）
 - 说明：选择翻译的目标语言
 
 **显示原文**
@@ -309,17 +315,12 @@ YouTube 字幕是增量显示的，例如：
 
 ### Q: 支持哪些语言？
 
-**A:** 当前支持：
-- 简体中文 (zh-CN)
-- 繁體中文 (zh-TW)
-- English (en)
-- 日本語 (ja)
-- 한국어 (ko)
-- Español (es)
-- Français (fr)
-- Deutsch (de)
-- Русский (ru)
-- العربية (ar)
+**A:** 目标翻译语言 30+ 种，包括但不限于：
+- 简体中文 (zh-CN)、繁體中文 (zh-TW)、English (en)、日本語 (ja)、한국어 (ko)
+- Español (es)、Français (fr)、Deutsch (de)、Italiano (it)、Português (pt)
+- Русский (ru)、العربية (ar)、हिन्दी (hi)、ไทย (th)、Tiếng Việt (vi)、Bahasa Indonesia (id)
+- 以及 Nederlands、Polski、Türkçe、Українська、עברית、Ελληνικά、Română、Magyar、Svenska 等。  
+弹窗界面语言：English、简体中文、繁體中文。
 
 ### Q: 能否添加更多语言？
 
@@ -346,5 +347,5 @@ const TARGET_LANGUAGES = [
 ---
 
 **文档版本**: 1.0.0  
-**最后更新**: 2026-02-07  
+**最后更新**: 2026-02-08  
 **维护者**: YouTube Live Translate Team

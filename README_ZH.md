@@ -2,9 +2,9 @@
 
 > 🌍 YouTube 实时字幕翻译 Chrome 扩展 - 打破语言障碍，畅享全球视频内容
 
-[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://github.com/yourusername/youtube-live-translate)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://github.com/wangruofeng/youtube-live-translate)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/yourusername/youtube-live-translate)
+[![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/wangruofeng/youtube-live-translate)
 
 ## ✨ 功能特性
 
@@ -23,9 +23,11 @@
 
 ### 🌐 支持语言
 
-简体中文、繁體中文、English、日本語、한국어、Español、Français、Deutsch、Русский、العربية
+目标翻译语言 30+ 种（如简体/繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、العربية、हिन्दी、ไทย 等）。弹窗界面语言：English、简体中文、繁體中文。
 
 ## 📸 界面预览
+
+![YouTube Live Translate](social-preview.png)
 
 ```
 ┌────────────────────────────────────────┐
@@ -40,7 +42,7 @@
 
 ### 安装方法
 
-1. 下载最新版本的 [youtube-live-translate.zip](https://github.com/yourusername/youtube-live-translate/releases)
+1. 下载最新版本的 [youtube-live-translate.zip](https://github.com/wangruofeng/youtube-live-translate/releases)
 
 2. 解压文件
 
@@ -67,6 +69,9 @@
    - 隐藏 YouTube 原字幕
    - 翻译内容对齐（左/中/右）
    - 译文字体大小（小/中/大，默认中）
+   - 界面语言（English / 简体中文 / 繁體中文）
+
+> **Social preview**：在 GitHub **Settings → General → Social preview** 上传 [social-preview.png](social-preview.png)（运行 `npm run social-preview` 生成，1280×640）。
 
 ## 🛠️ 技术栈
 
@@ -95,7 +100,7 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/youtube-live-translate.git
+git clone https://github.com/wangruofeng/youtube-live-translate.git
 cd youtube-live-translate
 
 # 安装依赖
@@ -107,6 +112,15 @@ npm run dev
 # 生产构建
 npm run build
 
+# 生成扩展图标（16/32/48/128/512）
+npm run icons
+
+# 生成 Social preview 图（1280×640）
+npm run social-preview
+
+# 删除构建产物
+npm run clean
+
 # 构建并打包
 npm run build && zip -r youtube-live-translate.zip dist/
 ```
@@ -117,20 +131,22 @@ npm run build && zip -r youtube-live-translate.zip dist/
 youtube-live-translate/
 ├── public/              # 静态资源
 │   ├── manifest.json   # 扩展配置
-│   └── icons/          # 图标资源
+│   └── icons/          # 图标（icon.svg → 16/32/48/128/512）
+├── scripts/            # generate-icons.js, generate-social-preview.js
 ├── src/
-│   ├── popup/          # 弹窗界面
+│   ├── popup/          # 弹窗界面（React，i18n：en/zh-CN/zh-TW）
 │   │   ├── App.tsx
 │   │   ├── index.tsx
-│   │   └── popup.css
+│   │   ├── popup.css
+│   │   └── locales.ts
 │   ├── content/        # 内容脚本
-│   │   ├── index.tsx
-│   │   └── content.css
+│   │   └── index.tsx
 │   └── background/     # 后台脚本
 │       └── index.ts
-├── dist/              # 构建输出
-├── docs/              # 文档
-└── webpack.config.js  # 构建配置
+├── dist/               # 构建输出
+├── docs/               # 文档
+├── social-preview.png  # GitHub 社交预览图（1280×640，npm run social-preview）
+└── webpack.config.js   # 构建配置
 ```
 
 ## 🤝 贡献

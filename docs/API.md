@@ -24,6 +24,9 @@ YouTube Live Translate 提供以下 API：
 
 ```typescript
 interface StorageData {
+  // 界面语言：'en' | 'zh-CN' | 'zh-TW'
+  uiLanguage?: string;
+  
   // 启用状态
   enabled?: boolean;
   
@@ -116,6 +119,11 @@ class SubtitleTranslator {
       if (changes.enabled) {
         this.state.enabled = changes.enabled.newValue;
         this.toggleTranslation();
+      }
+      
+      if (changes.uiLanguage) {
+        this.state.uiLanguage = changes.uiLanguage.newValue;
+        // 弹窗 UI 语言，Content 仅需在加载时读取（如“加载中…”文案）
       }
       
       if (changes.targetLang) {
@@ -400,10 +408,13 @@ clear(): void
 
 ```typescript
 interface PopupState {
+  uiLanguage: 'en' | 'zh-CN' | 'zh-TW';  // 界面语言
   enabled: boolean;
   targetLang: string;
   showOriginal: boolean;
   hideOriginalSubtitles: boolean;
+  textAlign: 'left' | 'center' | 'right';
+  translatedFontSize: 'small' | 'medium' | 'large';
 }
 ```
 
@@ -414,6 +425,12 @@ const handleToggle: () => void
 ```
 
 **说明**：切换启用/禁用状态。
+
+```typescript
+const handleUiLanguageChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+```
+
+**说明**：切换弹窗界面语言（English / 简体中文 / 繁體中文），写入 `chrome.storage.sync.uiLanguage`。
 
 ```typescript
 const handleLanguageChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
@@ -435,20 +452,7 @@ const handleHideOriginalSubtitlesToggle: () => void
 
 ### 支持的语言列表
 
-```typescript
-const TARGET_LANGUAGES = [
-  { code: 'zh-CN', name: '简体中文' },
-  { code: 'zh-TW', name: '繁體中文' },
-  { code: 'en', name: 'English' },
-  { code: 'ja', name: '日本語' },
-  { code: 'ko', name: '한국어' },
-  { code: 'es', name: 'Español' },
-  { code: 'fr', name: 'Français' },
-  { code: 'de', name: 'Deutsch' },
-  { code: 'ru', name: 'Русский' },
-  { code: 'ar', name: 'العربية' },
-];
-```
+目标翻译语言在 `src/popup/App.tsx` 的 `TARGET_LANGUAGES` 中定义，当前 30+ 种（含 zh-CN、zh-TW、en、ja、ko、es、fr、de、it、pt、ru、ar、hi、th、vi、id 等）。弹窗界面语言由 `src/popup/locales.ts` 的 `UI_LOCALE_OPTIONS` 定义：`en`、`zh-CN`、`zh-TW`。
 
 ## 消息传递
 
@@ -505,6 +509,9 @@ interface TranslationState {
   targetLang: string;            // 目标语言代码
   showOriginal: boolean;         // 显示原文
   hideOriginalSubtitles: boolean; // 隐藏 YouTube 原字幕
+  textAlign: 'left' | 'center' | 'right';
+  translatedFontSize: 'small' | 'medium' | 'large';
+  uiLanguage?: string;           // 界面语言（用于 content 加载中等文案）
 }
 ```
 
@@ -553,9 +560,9 @@ interface TranslationResponse {
 ### 时间常量
 
 ```typescript
-const DEBOUNCE_DELAY = 300;        // 防抖延迟（毫秒）
-const THROTTLE_DELAY = 100;        // 节流延迟（毫秒）
-const TRANSLATION_INTERVAL = 1000;  // 翻译间隔（毫秒）
+const DEBOUNCE_DELAY = 180;        // 防抖延迟（毫秒）
+const THROTTLE_DELAY = 60;         // 节流延迟（毫秒）
+const TRANSLATION_INTERVAL = 500;  // 翻译请求最小间隔（毫秒）
 ```
 
 ### 尺寸常量
@@ -681,5 +688,5 @@ this.subtitleBox.style.cssText = `
 ---
 
 **文档版本**: 1.0.0  
-**最后更新**: 2026-02-07  
+**最后更新**: 2026-02-08  
 **维护者**: YouTube Live Translate Team

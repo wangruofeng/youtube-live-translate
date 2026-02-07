@@ -36,8 +36,31 @@ const TARGET_LANGUAGES = [
   { code: 'es', name: 'Español' },
   { code: 'fr', name: 'Français' },
   { code: 'de', name: 'Deutsch' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'pt', name: 'Português' },
   { code: 'ru', name: 'Русский' },
   { code: 'ar', name: 'العربية' },
+  { code: 'hi', name: 'हिन्दी' },
+  { code: 'th', name: 'ไทย' },
+  { code: 'vi', name: 'Tiếng Việt' },
+  { code: 'id', name: 'Bahasa Indonesia' },
+  { code: 'ms', name: 'Bahasa Melayu' },
+  { code: 'nl', name: 'Nederlands' },
+  { code: 'pl', name: 'Polski' },
+  { code: 'tr', name: 'Türkçe' },
+  { code: 'uk', name: 'Українська' },
+  { code: 'he', name: 'עברית' },
+  { code: 'el', name: 'Ελληνικά' },
+  { code: 'ro', name: 'Română' },
+  { code: 'hu', name: 'Magyar' },
+  { code: 'sv', name: 'Svenska' },
+  { code: 'cs', name: 'Čeština' },
+  { code: 'da', name: 'Dansk' },
+  { code: 'fi', name: 'Suomi' },
+  { code: 'no', name: 'Norsk' },
+  { code: 'bg', name: 'Български' },
+  { code: 'bn', name: 'বাংলা' },
+  { code: 'ca', name: 'Català' },
 ];
 
 const App: React.FC = () => {
@@ -118,135 +141,147 @@ const App: React.FC = () => {
 
   const L = state.uiLanguage;
 
+  const AppIcon = () => (
+    <span className="popup-header__icon" aria-hidden>
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className="popup-header__logo-svg">
+        <rect width="48" height="48" rx="10" ry="10" fill="#4a90e2"/>
+        <rect x="10" y="16" width="28" height="4" rx="2" fill="#fff"/>
+        <rect x="10" y="26" width="22" height="4" rx="2" fill="#fff" opacity="0.9"/>
+      </svg>
+    </span>
+  );
+
   return (
     <div className="popup-container">
-      <header className="popup-header">
-        <h1>🎬 {t(L, 'title')}</h1>
+      <header className="popup-header" role="banner">
+        <AppIcon />
+        <h1 className="popup-header__title">{t(L, 'title')}</h1>
       </header>
 
-      <main className="popup-main">
-        <div className="setting-item">
-          <label className="setting-label setting-label--stack" htmlFor="ui-language-select">
-            {t(L, 'uiLanguage')}
-          </label>
-          <select
-            id="ui-language-select"
-            className="language-select"
-            value={state.uiLanguage}
-            onChange={handleUiLanguageChange}
-          >
-            {UI_LOCALE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="setting-item setting-item--row">
-          <div className="setting-label-block">
-            <span className="setting-title">{t(L, 'enableTranslation')}</span>
-            <span className={`status-badge ${state.enabled ? 'enabled' : 'disabled'}`}>
-              {state.enabled ? t(L, 'enabled') : t(L, 'disabled')}
-            </span>
+      <main className="popup-main" role="main">
+        <section className="setting-group setting-group--toggles" aria-labelledby="group-toggles">
+          <h2 id="group-toggles" className="setting-group__title">{t(L, 'groupToggles')}</h2>
+          <div className="setting-item setting-item--row">
+            <div className="setting-label-block">
+              <span className="setting-title">{t(L, 'enableTranslation')}</span>
+              <span className={`status-badge ${state.enabled ? 'enabled' : 'disabled'}`}>
+                {state.enabled ? t(L, 'enabled') : t(L, 'disabled')}
+              </span>
+            </div>
+            <button
+              className={`toggle-button ${state.enabled ? 'active' : ''}`}
+              onClick={handleToggle}
+              type="button"
+              aria-label={state.enabled ? t(L, 'ariaDisable') : t(L, 'ariaEnable')}
+            >
+              <div className="toggle-slider"></div>
+            </button>
           </div>
-          <button
-            className={`toggle-button ${state.enabled ? 'active' : ''}`}
-            onClick={handleToggle}
-            type="button"
-            aria-label={state.enabled ? t(L, 'ariaDisable') : t(L, 'ariaEnable')}
-          >
-            <div className="toggle-slider"></div>
-          </button>
-        </div>
-
-        <div className="setting-item setting-item--row">
-          <div className="setting-label-block">
-            <span className="setting-title">{t(L, 'showOriginal')}</span>
-            <span className={`status-badge ${state.showOriginal ? 'enabled' : 'disabled'}`}>
-              {state.showOriginal ? t(L, 'enabled') : t(L, 'disabled')}
-            </span>
+          <div className="setting-item setting-item--row">
+            <div className="setting-label-block">
+              <span className="setting-title">{t(L, 'showOriginal')}</span>
+              <span className={`status-badge ${state.showOriginal ? 'enabled' : 'disabled'}`}>
+                {state.showOriginal ? t(L, 'enabled') : t(L, 'disabled')}
+              </span>
+            </div>
+            <button
+              className={`toggle-button ${state.showOriginal ? 'active' : ''}`}
+              onClick={handleShowOriginalToggle}
+              type="button"
+              aria-label={t(L, 'ariaToggle')}
+            >
+              <div className="toggle-slider"></div>
+            </button>
           </div>
-          <button
-            className={`toggle-button ${state.showOriginal ? 'active' : ''}`}
-            onClick={handleShowOriginalToggle}
-            type="button"
-            aria-label={t(L, 'ariaToggle')}
-          >
-            <div className="toggle-slider"></div>
-          </button>
-        </div>
-
-        <div className="setting-item setting-item--row">
-          <div className="setting-label-block">
-            <span className="setting-title">{t(L, 'hideOriginalSubtitles')}</span>
-            <span className={`status-badge ${state.hideOriginalSubtitles ? 'enabled' : 'disabled'}`}>
-              {state.hideOriginalSubtitles ? t(L, 'enabled') : t(L, 'disabled')}
-            </span>
+          <div className="setting-item setting-item--row setting-item--last">
+            <div className="setting-label-block">
+              <span className="setting-title">{t(L, 'hideOriginalSubtitles')}</span>
+              <span className={`status-badge ${state.hideOriginalSubtitles ? 'enabled' : 'disabled'}`}>
+                {state.hideOriginalSubtitles ? t(L, 'enabled') : t(L, 'disabled')}
+              </span>
+            </div>
+            <button
+              className={`toggle-button ${state.hideOriginalSubtitles ? 'active' : ''}`}
+              onClick={handleHideOriginalSubtitlesToggle}
+              type="button"
+              aria-label={t(L, 'ariaToggle')}
+            >
+              <div className="toggle-slider"></div>
+            </button>
           </div>
-          <button
-            className={`toggle-button ${state.hideOriginalSubtitles ? 'active' : ''}`}
-            onClick={handleHideOriginalSubtitlesToggle}
-            type="button"
-            aria-label={t(L, 'ariaToggle')}
-          >
-            <div className="toggle-slider"></div>
-          </button>
-        </div>
+        </section>
 
-        <div className="setting-item">
-          <label className="setting-label setting-label--stack" htmlFor="language-select">
-            {t(L, 'targetLanguage')}
-          </label>
-          <select
-            id="language-select"
-            className="language-select"
-            value={state.targetLang}
-            onChange={handleLanguageChange}
-          >
-            {TARGET_LANGUAGES.map((lang) => (
-              <option key={lang.code} value={lang.code}>
-                {lang.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="setting-item">
-          <label className="setting-label setting-label--stack" htmlFor="text-align-select">
-            {t(L, 'textAlign')}
-          </label>
-          <select
-            id="text-align-select"
-            className="language-select"
-            value={state.textAlign}
-            onChange={handleTextAlignChange}
-          >
-            {TEXT_ALIGN_KEYS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {t(L, opt.key)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="setting-item setting-item--last">
-          <label className="setting-label setting-label--stack" htmlFor="translated-font-size-select">
-            {t(L, 'translatedFontSize')}
-          </label>
-          <select
-            id="translated-font-size-select"
-            className="language-select"
-            value={state.translatedFontSize}
-            onChange={handleTranslatedFontSizeChange}
-          >
-            {TRANSLATED_FONT_SIZE_KEYS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {t(L, opt.key)}
-              </option>
-            ))}
-          </select>
-        </div>
+        <section className="setting-group setting-group--options" aria-labelledby="group-options">
+          <h2 id="group-options" className="setting-group__title">{t(L, 'groupOptions')}</h2>
+          <div className="setting-item setting-item--inline">
+            <label className="setting-label" htmlFor="ui-language-select">
+              {t(L, 'uiLanguage')}
+            </label>
+            <select
+              id="ui-language-select"
+              className="language-select"
+              value={state.uiLanguage}
+              onChange={handleUiLanguageChange}
+            >
+              {UI_LOCALE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="setting-item setting-item--inline">
+            <label className="setting-label" htmlFor="language-select">
+              {t(L, 'targetLanguage')}
+            </label>
+            <select
+              id="language-select"
+              className="language-select"
+              value={state.targetLang}
+              onChange={handleLanguageChange}
+            >
+              {TARGET_LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="setting-item setting-item--inline">
+            <label className="setting-label" htmlFor="text-align-select">
+              {t(L, 'textAlign')}
+            </label>
+            <select
+              id="text-align-select"
+              className="language-select"
+              value={state.textAlign}
+              onChange={handleTextAlignChange}
+            >
+              {TEXT_ALIGN_KEYS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {t(L, opt.key)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="setting-item setting-item--last setting-item--inline">
+            <label className="setting-label" htmlFor="translated-font-size-select">
+              {t(L, 'translatedFontSize')}
+            </label>
+            <select
+              id="translated-font-size-select"
+              className="language-select"
+              value={state.translatedFontSize}
+              onChange={handleTranslatedFontSizeChange}
+            >
+              {TRANSLATED_FONT_SIZE_KEYS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {t(L, opt.key)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </section>
 
         <div className="info-section">
           <p className="info-text">💡 {t(L, 'tipSubtitle')}</p>

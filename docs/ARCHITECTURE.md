@@ -54,10 +54,10 @@ YouTube Live Translate 采用 Chrome Extension Manifest V3 架构，分为三个
 
 | 技术 | 版本 | 用途 |
 |------|------|------|
-| React | 18.3 | UI 框架 |
+| React | 18.x | UI 框架 |
 | TypeScript | 5.x | 类型安全 |
 | Webpack | 5.x | 模块打包 |
-| Babel | 7.x | 代码转译 |
+| sharp | 0.33 | 图标与 Social preview 图生成 |
 
 ### Chrome API
 
@@ -76,9 +76,10 @@ YouTube Live Translate 采用 Chrome Extension Manifest V3 架构，分为三个
 
 | 工具 | 用途 |
 |------|------|
-| ESLint | 代码检查 |
+| ts-loader | TypeScript 编译 |
 | npm | 包管理 |
 | Git | 版本控制 |
+| Node (scripts) | 图标与 social-preview 生成 |
 
 ## 系统架构
 
@@ -88,20 +89,27 @@ YouTube Live Translate 采用 Chrome Extension Manifest V3 架构，分为三个
 youtube-live-translate/
 ├── public/                  # 静态资源
 │   ├── manifest.json       # 扩展配置清单
-│   └── icons/              # 图标资源
-│       ├── icon16.png      # 16x16 图标
-│       ├── icon48.png      # 48x48 图标
-│       └── icon128.png     # 128x128 图标
+│   └── icons/              # 图标资源（由 scripts/generate-icons.js 生成）
+│       ├── icon.svg         # 矢量源
+│       ├── icon16.png      # 16x16
+│       ├── icon32.png      # 32x32
+│       ├── icon48.png      # 48x48
+│       ├── icon128.png     # 128x128
+│       └── icon512.png     # 512x512（含 GitHub 等用途）
+│
+├── scripts/                # 构建前脚本
+│   ├── generate-icons.js   # 从 icon.svg 生成多尺寸 PNG
+│   └── generate-social-preview.js  # 生成 1280×640 social-preview.png
 │
 ├── src/                    # 源代码
-│   ├── popup/              # 弹窗界面
+│   ├── popup/              # 弹窗界面（i18n: en/zh-CN/zh-TW）
 │   │   ├── App.tsx         # 主组件
 │   │   ├── index.tsx       # 入口文件
-│   │   └── popup.css       # 样式文件
+│   │   ├── popup.css       # 样式文件
+│   │   └── locales.ts     # 界面文案多语言
 │   │
 │   ├── content/            # 内容脚本
-│   │   ├── index.tsx       # 核心逻辑（约 1050 行）
-│   │   └── content.css     # 内容脚本样式（若使用）
+│   │   └── index.tsx       # 核心逻辑
 │   │
 │   └── background/         # 后台脚本
 │       └── index.ts        # Service Worker
@@ -172,6 +180,7 @@ class SubtitleTranslator {
 ```typescript
 const App: React.FC = () => {
   const [state, setState] = useState<PopupState>({
+    uiLanguage: 'en',        // 界面语言：en | zh-CN | zh-TW
     enabled: true,
     targetLang: 'zh-CN',
     showOriginal: false,
@@ -182,6 +191,7 @@ const App: React.FC = () => {
   
   // 处理函数
   const handleToggle = () => { ... }
+  const handleUiLanguageChange = () => { ... }
   const handleLanguageChange = () => { ... }
   const handleShowOriginalToggle = () => { ... }
   const handleHideOriginalSubtitlesToggle = () => { ... }
@@ -566,8 +576,8 @@ chrome.storage.sync.set()
 private handleSubtitleChange(selector: string) {
   const currentText = this.extractText();
   
-  // 节流：100ms 内只处理一次
-  if (Date.now() - this.lastProcessTime < 100) return;
+  // 节流：60ms 内只处理一次
+  if (Date.now() - this.lastProcessTime < this.THROTTLE_DELAY) return;
   
   // 去重：相同文本不处理
   if (currentText === this.lastOriginalText) return;
@@ -603,10 +613,10 @@ private handleSubtitleChange(selector: string) {
       this.requestTranslation(textToTranslate);
     }
   } else if (shouldRefreshUI) {
-    // 设置 debounce 定时器
+    // 设置 debounce 定时器（180ms）
     this.debounceTimer = setTimeout(() => {
       this.requestTranslation(textToTranslate);
-    }, 300);
+    }, this.DEBOUNCE_DELAY);
   }
 }
 ```
@@ -675,9 +685,9 @@ private setupAdDetection() {
 
 | 策略 | 延迟 | 用途 |
 |------|------|------|
-| Throttle | 100ms | 限制字幕检测频率 |
-| Debounce | 300ms | 等待字幕稳定后翻译 |
-| Rate Limit | 1000ms | 翻译请求间隔 |
+| Throttle | 60ms | 限制字幕检测频率 |
+| Debounce | 180ms | 等待字幕稳定后翻译 |
+| Rate Limit | 500ms | 翻译请求间隔 |
 
 ### 2. 缓存策略
 
@@ -734,10 +744,9 @@ this.observer.observe(targetNode, {
 源代码 (TypeScript + React)
     ↓
 Webpack 打包
-    ├─ babel-loader (转译)
-    ├─ ts-loader (类型检查)
+    ├─ ts-loader (TypeScript 编译)
     ├─ css-loader (样式处理)
-    └─ webpack.IgnorePlugin (忽略)
+    └─ copy-webpack-plugin (静态资源)
     ↓
 输出 (JavaScript + HTML + CSS)
     ├─ popup.html + popup.js
@@ -864,5 +873,5 @@ console.error('[YouTube Live Translate] 错误');
 ---
 
 **文档版本**: 1.0.0  
-**最后更新**: 2026-02-07  
+**最后更新**: 2026-02-08  
 **维护者**: YouTube Live Translate Team

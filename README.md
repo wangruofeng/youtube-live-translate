@@ -25,9 +25,11 @@
 
 ### 🌐 Languages
 
-Simplified Chinese, Traditional Chinese, English, Japanese, Korean, Spanish, French, German, Russian, Arabic
+30+ target languages (e.g. 简体/繁體中文, English, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, العربية, and more). Popup UI in English, 简体中文, or 繁體中文.
 
 ## 📸 Preview
+
+![YouTube Live Translate](social-preview.png)
 
 ```
 ┌────────────────────────────────────────┐
@@ -60,6 +62,9 @@ Simplified Chinese, Traditional Chinese, English, Japanese, Korean, Spanish, Fre
    - Hide YouTube’s original captions
    - Text alignment (left / center / right)
    - Translation font size (small / medium / large)
+   - UI language (English / 简体中文 / 繁體中文)
+
+> **Social preview**：在 GitHub **Settings → General → Social preview** 上传 [social-preview.png](social-preview.png)（`npm run social-preview` 生成，1280×640）。
 
 ## 🛠️ Tech Stack
 
@@ -91,8 +96,11 @@ git clone https://github.com/wangruofeng/youtube-live-translate.git
 cd youtube-live-translate
 
 npm install
-npm run dev    # watch mode
-npm run build  # production build
+npm run dev           # watch mode
+npm run build         # production build
+npm run icons         # generate extension icons (16/32/48/128/512)
+npm run social-preview # generate 1280×640 social-preview.png
+npm run clean         # remove dist/
 # Optional: npm run build && zip -r youtube-live-translate.zip dist/
 ```
 
@@ -100,13 +108,15 @@ npm run build  # production build
 
 ```
 youtube-live-translate/
-├── public/           # Static assets, manifest, icons
+├── public/           # Static assets, manifest, icons (icon.svg → 16/32/48/128/512)
+├── scripts/          # generate-icons.js, generate-social-preview.js
 ├── src/
-│   ├── popup/        # Extension popup (React)
+│   ├── popup/        # Extension popup (React, i18n: en/zh-CN/zh-TW)
 │   ├── content/      # Injected script (YouTube page)
 │   └── background/   # Service worker
 ├── dist/             # Build output
 ├── docs/             # Documentation (Chinese)
+├── social-preview.png # GitHub social preview (1280×640, npm run social-preview)
 └── webpack.config.js
 ```
 
