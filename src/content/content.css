@@ -1,0 +1,21 @@
+/* Content Script 样式 */
+
+#yt-live-translate-container {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 确保翻译容器不会被 YouTube 的样式覆盖 */
+#yt-live-translate-container * {
+  all: revert;
+}

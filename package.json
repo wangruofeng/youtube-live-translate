@@ -1,0 +1,35 @@
+{
+  "name": "youtube-live-translate",
+  "version": "1.0.0",
+  "description": "YouTube 实时字幕翻译 Chrome 扩展",
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "youtube",
+    "subtitle",
+    "translate",
+    "chrome-extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.258",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "copy-webpack-plugin": "^12.0.0",
+    "css-loader": "^6.8.0",
+    "html-webpack-plugin": "^5.5.0",
+    "style-loader": "^3.3.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.3.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.0"
+  }
+}

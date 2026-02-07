@@ -1,0 +1,144 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  min-height: 250px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.popup-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 250px;
+}
+
+.popup-header {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.popup-header h1 {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.popup-main {
+  padding: 16px;
+  background: white;
+  border-radius: 12px 12px 0 0;
+  min-height: 200px;
+}
+
+.setting-item {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.setting-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.enabled {
+  background: #e7f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.disabled {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+.toggle-button {
+  width: 48px;
+  height: 26px;
+  background: #ccc;
+  border-radius: 13px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.toggle-button.active {
+  background: #667eea;
+}
+
+.toggle-slider {
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-button.active .toggle-slider {
+  transform: translateX(22px);
+}
+
+.language-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.language-select:hover {
+  border-color: #667eea;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.info-section {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.info-text {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
