@@ -1,11 +1,20 @@
 // YouTube 实时字幕翻译 Content Script
 // 基于双行结构、防闪烁、序列号机制的完整实现
 
+type TextAlignType = 'left' | 'center' | 'right';
+
+const TEXT_ALIGN_VALUES: TextAlignType[] = ['left', 'center', 'right'];
+
+function normalizeTextAlign(value: unknown): TextAlignType {
+  return TEXT_ALIGN_VALUES.includes(value as TextAlignType) ? (value as TextAlignType) : 'center';
+}
+
 interface TranslationState {
   enabled: boolean;
   targetLang: string;
   showOriginal: boolean;
   hideOriginalSubtitles: boolean;
+  textAlign: TextAlignType;
 }
 
 interface SubtitlePosition {
@@ -88,6 +97,7 @@ class SubtitleTranslator {
     targetLang: 'zh-CN',
     showOriginal: false,
     hideOriginalSubtitles: false,
+    textAlign: 'center',
   };
 
   // UI 元素
@@ -137,12 +147,13 @@ class SubtitleTranslator {
   private async init() {
     console.log('[YouTube Live Translate] 初始化中...');
 
-    const result = await chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'position', 'isClosed']);
+    const result = await chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign', 'position', 'isClosed']);
     this.state = {
       enabled: result.enabled ?? true,
       targetLang: result.targetLang ?? 'zh-CN',
       showOriginal: result.showOriginal ?? false,
       hideOriginalSubtitles: result.hideOriginalSubtitles ?? false,
+      textAlign: normalizeTextAlign(result.textAlign),
     };
 
     // 读取保存的位置
@@ -181,6 +192,10 @@ class SubtitleTranslator {
         if (changes.hideOriginalSubtitles) {
           this.state.hideOriginalSubtitles = changes.hideOriginalSubtitles.newValue;
           this.updateOriginalSubtitlesVisibility();
+        }
+        if (changes.textAlign) {
+          this.state.textAlign = normalizeTextAlign(changes.textAlign.newValue);
+          this.updateTextAlign();
         }
       }
     });
@@ -438,7 +453,7 @@ class SubtitleTranslator {
       color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
       line-height: 1.4;
-      text-align: left;
+      text-align: ${this.state.textAlign};
       white-space: pre-wrap;
       word-wrap: break-word;
       display: ${this.state.showOriginal ? '-webkit-box' : 'none'};
@@ -458,7 +473,7 @@ class SubtitleTranslator {
       font-size: 18px;
       line-height: 1.4;
       font-weight: 500;
-      text-align: left;
+      text-align: ${this.state.textAlign};
       white-space: pre-wrap;
       word-wrap: break-word;
       pointer-events: none;
@@ -566,6 +581,11 @@ class SubtitleTranslator {
   private updateOriginalVisibility() {
     if (!this.originalLine) return;
     this.originalLine.style.display = this.state.showOriginal ? '-webkit-box' : 'none';
+  }
+
+  private updateTextAlign() {
+    if (this.originalLine) this.originalLine.style.textAlign = this.state.textAlign;
+    if (this.translatedLine) this.translatedLine.style.textAlign = this.state.textAlign;
   }
 
   private updateOriginalSubtitlesVisibility() {

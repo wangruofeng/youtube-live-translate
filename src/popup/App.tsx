@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import './popup.css';
 
+type TextAlignType = 'left' | 'center' | 'right';
+
 interface PopupState {
   enabled: boolean;
   targetLang: string;
   showOriginal: boolean;
   hideOriginalSubtitles: boolean;
+  textAlign: TextAlignType;
 }
+
+const TEXT_ALIGN_OPTIONS: { value: TextAlignType; name: string }[] = [
+  { value: 'left', name: '左对齐' },
+  { value: 'center', name: '居中对齐' },
+  { value: 'right', name: '右对齐' },
+];
 
 const TARGET_LANGUAGES = [
   { code: 'zh-CN', name: '简体中文' },
@@ -27,16 +36,18 @@ const App: React.FC = () => {
     targetLang: 'zh-CN',
     showOriginal: false,
     hideOriginalSubtitles: false,
+    textAlign: 'center',
   });
 
   useEffect(() => {
     // 加载保存的设置
-    chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles'], (result) => {
+    chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign'], (result) => {
       setState({
         enabled: result.enabled ?? true,
         targetLang: result.targetLang ?? 'zh-CN',
         showOriginal: result.showOriginal ?? false,
         hideOriginalSubtitles: result.hideOriginalSubtitles ?? false,
+        textAlign: TEXT_ALIGN_OPTIONS.some((o) => o.value === result.textAlign) ? (result.textAlign as TextAlignType) : 'center',
       });
     });
   }, []);
@@ -66,6 +77,13 @@ const App: React.FC = () => {
     chrome.storage.sync.set({ hideOriginalSubtitles: newState.hideOriginalSubtitles });
   };
 
+  const handleTextAlignChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const raw = e.target.value;
+    const textAlign = TEXT_ALIGN_OPTIONS.some((o) => o.value === raw) ? (raw as TextAlignType) : 'center';
+    setState({ ...state, textAlign });
+    chrome.storage.sync.set({ textAlign });
+  };
+
   return (
     <div className="popup-container">
       <header className="popup-header">
@@ -73,9 +91,9 @@ const App: React.FC = () => {
       </header>
 
       <main className="popup-main">
-        <div className="setting-item">
-          <div className="setting-label">
-            <span>启用翻译</span>
+        <div className="setting-item setting-item--row">
+          <div className="setting-label-block">
+            <span className="setting-title">启用翻译</span>
             <span className={`status-badge ${state.enabled ? 'enabled' : 'disabled'}`}>
               {state.enabled ? '已启用' : '已禁用'}
             </span>
@@ -83,14 +101,16 @@ const App: React.FC = () => {
           <button
             className={`toggle-button ${state.enabled ? 'active' : ''}`}
             onClick={handleToggle}
+            type="button"
+            aria-label={state.enabled ? '禁用翻译' : '启用翻译'}
           >
             <div className="toggle-slider"></div>
           </button>
         </div>
 
-        <div className="setting-item">
-          <div className="setting-label">
-            <span>显示原文</span>
+        <div className="setting-item setting-item--row">
+          <div className="setting-label-block">
+            <span className="setting-title">显示原文</span>
             <span className={`status-badge ${state.showOriginal ? 'enabled' : 'disabled'}`}>
               {state.showOriginal ? '已启用' : '已禁用'}
             </span>
@@ -98,14 +118,16 @@ const App: React.FC = () => {
           <button
             className={`toggle-button ${state.showOriginal ? 'active' : ''}`}
             onClick={handleShowOriginalToggle}
+            type="button"
+            aria-label={state.showOriginal ? '隐藏原文' : '显示原文'}
           >
             <div className="toggle-slider"></div>
           </button>
         </div>
 
-        <div className="setting-item">
-          <div className="setting-label">
-            <span>隐藏 YouTube 原字幕</span>
+        <div className="setting-item setting-item--row">
+          <div className="setting-label-block">
+            <span className="setting-title">隐藏 YouTube 原字幕</span>
             <span className={`status-badge ${state.hideOriginalSubtitles ? 'enabled' : 'disabled'}`}>
               {state.hideOriginalSubtitles ? '已启用' : '已禁用'}
             </span>
@@ -113,13 +135,15 @@ const App: React.FC = () => {
           <button
             className={`toggle-button ${state.hideOriginalSubtitles ? 'active' : ''}`}
             onClick={handleHideOriginalSubtitlesToggle}
+            type="button"
+            aria-label={state.hideOriginalSubtitles ? '显示原字幕' : '隐藏原字幕'}
           >
             <div className="toggle-slider"></div>
           </button>
         </div>
 
         <div className="setting-item">
-          <label className="setting-label" htmlFor="language-select">
+          <label className="setting-label setting-label--stack" htmlFor="language-select">
             目标语言
           </label>
           <select
@@ -131,6 +155,24 @@ const App: React.FC = () => {
             {TARGET_LANGUAGES.map((lang) => (
               <option key={lang.code} value={lang.code}>
                 {lang.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="setting-item setting-item--last">
+          <label className="setting-label setting-label--stack" htmlFor="text-align-select">
+            翻译内容对齐
+          </label>
+          <select
+            id="text-align-select"
+            className="language-select"
+            value={state.textAlign}
+            onChange={handleTextAlignChange}
+          >
+            {TEXT_ALIGN_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.name}
               </option>
             ))}
           </select>
