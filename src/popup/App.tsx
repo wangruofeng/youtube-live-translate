@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './popup.css';
+import { type UiLocale, UI_LOCALE_OPTIONS, t, DEFAULT_UI_LOCALE } from './locales';
 
 type TextAlignType = 'left' | 'center' | 'right';
 type TranslatedFontSizeType = 'small' | 'medium' | 'large';
 
 interface PopupState {
+  uiLanguage: UiLocale;
   enabled: boolean;
   targetLang: string;
   showOriginal: boolean;
@@ -13,16 +15,16 @@ interface PopupState {
   translatedFontSize: TranslatedFontSizeType;
 }
 
-const TEXT_ALIGN_OPTIONS: { value: TextAlignType; name: string }[] = [
-  { value: 'left', name: '左对齐' },
-  { value: 'center', name: '居中对齐' },
-  { value: 'right', name: '右对齐' },
+const TEXT_ALIGN_KEYS: { value: TextAlignType; key: 'alignLeft' | 'alignCenter' | 'alignRight' }[] = [
+  { value: 'left', key: 'alignLeft' },
+  { value: 'center', key: 'alignCenter' },
+  { value: 'right', key: 'alignRight' },
 ];
 
-const TRANSLATED_FONT_SIZE_OPTIONS: { value: TranslatedFontSizeType; name: string }[] = [
-  { value: 'small', name: '小' },
-  { value: 'medium', name: '中' },
-  { value: 'large', name: '大' },
+const TRANSLATED_FONT_SIZE_KEYS: { value: TranslatedFontSizeType; key: 'sizeSmall' | 'sizeMedium' | 'sizeLarge' }[] = [
+  { value: 'small', key: 'sizeSmall' },
+  { value: 'medium', key: 'sizeMedium' },
+  { value: 'large', key: 'sizeLarge' },
 ];
 
 const TARGET_LANGUAGES = [
@@ -40,6 +42,7 @@ const TARGET_LANGUAGES = [
 
 const App: React.FC = () => {
   const [state, setState] = useState<PopupState>({
+    uiLanguage: DEFAULT_UI_LOCALE,
     enabled: true,
     targetLang: 'zh-CN',
     showOriginal: false,
@@ -49,17 +52,23 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
-    // 加载保存的设置
-    chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign', 'translatedFontSize'], (result) => {
-      setState({
-        enabled: result.enabled ?? true,
-        targetLang: result.targetLang ?? 'zh-CN',
-        showOriginal: result.showOriginal ?? false,
-        hideOriginalSubtitles: result.hideOriginalSubtitles ?? false,
-        textAlign: TEXT_ALIGN_OPTIONS.some((o) => o.value === result.textAlign) ? (result.textAlign as TextAlignType) : 'center',
-        translatedFontSize: TRANSLATED_FONT_SIZE_OPTIONS.some((o) => o.value === result.translatedFontSize) ? (result.translatedFontSize as TranslatedFontSizeType) : 'medium',
-      });
-    });
+    chrome.storage.sync.get(
+      ['uiLanguage', 'enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign', 'translatedFontSize'],
+      (result) => {
+        const uiLang = UI_LOCALE_OPTIONS.some((o) => o.value === result.uiLanguage)
+          ? (result.uiLanguage as UiLocale)
+          : DEFAULT_UI_LOCALE;
+        setState({
+          uiLanguage: uiLang,
+          enabled: result.enabled ?? true,
+          targetLang: result.targetLang ?? 'zh-CN',
+          showOriginal: result.showOriginal ?? false,
+          hideOriginalSubtitles: result.hideOriginalSubtitles ?? false,
+          textAlign: TEXT_ALIGN_KEYS.some((o) => o.value === result.textAlign) ? (result.textAlign as TextAlignType) : 'center',
+          translatedFontSize: TRANSLATED_FONT_SIZE_KEYS.some((o) => o.value === result.translatedFontSize) ? (result.translatedFontSize as TranslatedFontSizeType) : 'medium',
+        });
+      }
+    );
   }, []);
 
   const handleToggle = () => {
@@ -89,37 +98,63 @@ const App: React.FC = () => {
 
   const handleTextAlignChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const raw = e.target.value;
-    const textAlign = TEXT_ALIGN_OPTIONS.some((o) => o.value === raw) ? (raw as TextAlignType) : 'center';
+    const textAlign = TEXT_ALIGN_KEYS.some((o) => o.value === raw) ? (raw as TextAlignType) : 'center';
     setState({ ...state, textAlign });
     chrome.storage.sync.set({ textAlign });
   };
 
   const handleTranslatedFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const raw = e.target.value;
-    const translatedFontSize = TRANSLATED_FONT_SIZE_OPTIONS.some((o) => o.value === raw) ? (raw as TranslatedFontSizeType) : 'medium';
+    const translatedFontSize = TRANSLATED_FONT_SIZE_KEYS.some((o) => o.value === raw) ? (raw as TranslatedFontSizeType) : 'medium';
     setState({ ...state, translatedFontSize });
     chrome.storage.sync.set({ translatedFontSize });
   };
 
+  const handleUiLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const uiLanguage = UI_LOCALE_OPTIONS.some((o) => o.value === e.target.value) ? (e.target.value as UiLocale) : DEFAULT_UI_LOCALE;
+    setState({ ...state, uiLanguage });
+    chrome.storage.sync.set({ uiLanguage });
+  };
+
+  const L = state.uiLanguage;
+
   return (
     <div className="popup-container">
       <header className="popup-header">
-        <h1>🎬 YouTube 字幕翻译</h1>
+        <h1>🎬 {t(L, 'title')}</h1>
       </header>
 
       <main className="popup-main">
+        <div className="setting-item">
+          <label className="setting-label setting-label--stack" htmlFor="ui-language-select">
+            {t(L, 'uiLanguage')}
+          </label>
+          <select
+            id="ui-language-select"
+            className="language-select"
+            value={state.uiLanguage}
+            onChange={handleUiLanguageChange}
+          >
+            {UI_LOCALE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="setting-item setting-item--row">
           <div className="setting-label-block">
-            <span className="setting-title">启用翻译</span>
+            <span className="setting-title">{t(L, 'enableTranslation')}</span>
             <span className={`status-badge ${state.enabled ? 'enabled' : 'disabled'}`}>
-              {state.enabled ? '已启用' : '已禁用'}
+              {state.enabled ? t(L, 'enabled') : t(L, 'disabled')}
             </span>
           </div>
           <button
             className={`toggle-button ${state.enabled ? 'active' : ''}`}
             onClick={handleToggle}
             type="button"
-            aria-label={state.enabled ? '禁用翻译' : '启用翻译'}
+            aria-label={state.enabled ? t(L, 'ariaDisable') : t(L, 'ariaEnable')}
           >
             <div className="toggle-slider"></div>
           </button>
@@ -127,16 +162,16 @@ const App: React.FC = () => {
 
         <div className="setting-item setting-item--row">
           <div className="setting-label-block">
-            <span className="setting-title">显示原文</span>
+            <span className="setting-title">{t(L, 'showOriginal')}</span>
             <span className={`status-badge ${state.showOriginal ? 'enabled' : 'disabled'}`}>
-              {state.showOriginal ? '已启用' : '已禁用'}
+              {state.showOriginal ? t(L, 'enabled') : t(L, 'disabled')}
             </span>
           </div>
           <button
             className={`toggle-button ${state.showOriginal ? 'active' : ''}`}
             onClick={handleShowOriginalToggle}
             type="button"
-            aria-label={state.showOriginal ? '隐藏原文' : '显示原文'}
+            aria-label={t(L, 'ariaToggle')}
           >
             <div className="toggle-slider"></div>
           </button>
@@ -144,16 +179,16 @@ const App: React.FC = () => {
 
         <div className="setting-item setting-item--row">
           <div className="setting-label-block">
-            <span className="setting-title">隐藏 YouTube 原字幕</span>
+            <span className="setting-title">{t(L, 'hideOriginalSubtitles')}</span>
             <span className={`status-badge ${state.hideOriginalSubtitles ? 'enabled' : 'disabled'}`}>
-              {state.hideOriginalSubtitles ? '已启用' : '已禁用'}
+              {state.hideOriginalSubtitles ? t(L, 'enabled') : t(L, 'disabled')}
             </span>
           </div>
           <button
             className={`toggle-button ${state.hideOriginalSubtitles ? 'active' : ''}`}
             onClick={handleHideOriginalSubtitlesToggle}
             type="button"
-            aria-label={state.hideOriginalSubtitles ? '显示原字幕' : '隐藏原字幕'}
+            aria-label={t(L, 'ariaToggle')}
           >
             <div className="toggle-slider"></div>
           </button>
@@ -161,7 +196,7 @@ const App: React.FC = () => {
 
         <div className="setting-item">
           <label className="setting-label setting-label--stack" htmlFor="language-select">
-            目标语言
+            {t(L, 'targetLanguage')}
           </label>
           <select
             id="language-select"
@@ -179,7 +214,7 @@ const App: React.FC = () => {
 
         <div className="setting-item">
           <label className="setting-label setting-label--stack" htmlFor="text-align-select">
-            翻译内容对齐
+            {t(L, 'textAlign')}
           </label>
           <select
             id="text-align-select"
@@ -187,9 +222,9 @@ const App: React.FC = () => {
             value={state.textAlign}
             onChange={handleTextAlignChange}
           >
-            {TEXT_ALIGN_OPTIONS.map((opt) => (
+            {TEXT_ALIGN_KEYS.map((opt) => (
               <option key={opt.value} value={opt.value}>
-                {opt.name}
+                {t(L, opt.key)}
               </option>
             ))}
           </select>
@@ -197,7 +232,7 @@ const App: React.FC = () => {
 
         <div className="setting-item setting-item--last">
           <label className="setting-label setting-label--stack" htmlFor="translated-font-size-select">
-            译文字体大小
+            {t(L, 'translatedFontSize')}
           </label>
           <select
             id="translated-font-size-select"
@@ -205,21 +240,17 @@ const App: React.FC = () => {
             value={state.translatedFontSize}
             onChange={handleTranslatedFontSizeChange}
           >
-            {TRANSLATED_FONT_SIZE_OPTIONS.map((opt) => (
+            {TRANSLATED_FONT_SIZE_KEYS.map((opt) => (
               <option key={opt.value} value={opt.value}>
-                {opt.name}
+                {t(L, opt.key)}
               </option>
             ))}
           </select>
         </div>
 
         <div className="info-section">
-          <p className="info-text">
-            💡 在 YouTube 视频页面，字幕会自动显示翻译
-          </p>
-          <p className="info-text">
-            ⌨️ 快捷键：Alt/Option/Cmd + E 开启/关闭插件（兼容 Mac / Windows）
-          </p>
+          <p className="info-text">💡 {t(L, 'tipSubtitle')}</p>
+          <p className="info-text">⌨️ {t(L, 'tipShortcut')}</p>
         </div>
       </main>
     </div>

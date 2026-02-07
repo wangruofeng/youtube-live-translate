@@ -12,6 +12,8 @@ const TRANSLATED_FONT_SIZE_PX: Record<TranslatedFontSizeType, number> = {
   medium: 22,
   large: 26,
 };
+const MIN_TRANSLATED_FONT_PX = 12;
+const SUBTITLE_BOX_MAX_HEIGHT = '50vh';
 
 function normalizeTextAlign(value: unknown): TextAlignType {
   return TEXT_ALIGN_VALUES.includes(value as TextAlignType) ? (value as TextAlignType) : 'center';
@@ -19,6 +21,17 @@ function normalizeTextAlign(value: unknown): TextAlignType {
 
 function normalizeTranslatedFontSize(value: unknown): TranslatedFontSizeType {
   return TRANSLATED_FONT_SIZE_VALUES.includes(value as TranslatedFontSizeType) ? (value as TranslatedFontSizeType) : 'medium';
+}
+
+type UiLocale = 'en' | 'zh-CN' | 'zh-TW';
+const LOADING_TEXT: Record<UiLocale, string> = {
+  en: 'Loading...',
+  'zh-CN': '加载中...',
+  'zh-TW': '載入中...',
+};
+const DEFAULT_UI_LOCALE: UiLocale = 'en';
+function normalizeUiLocale(value: unknown): UiLocale {
+  return value === 'zh-CN' || value === 'zh-TW' ? value : 'en';
 }
 
 interface TranslationState {
@@ -118,6 +131,7 @@ class SubtitleTranslator {
   private wrapper: HTMLDivElement | null = null;
   private overlay: HTMLDivElement | null = null;
   private subtitleBox: HTMLDivElement | null = null;
+  private loadingLine: HTMLDivElement | null = null;
   private originalLine: HTMLDivElement | null = null;
   private translatedLine: HTMLDivElement | null = null;
 
@@ -152,6 +166,9 @@ class SubtitleTranslator {
   private isAdPlaying = false;
   private adCheckInterval: number | null = null;
 
+  // 界面语言（与 popup 一致，用于加载文案等）
+  private uiLanguage: UiLocale = DEFAULT_UI_LOCALE;
+
   // overlay 创建重试
   private createOverlayAttempts = 0;
   private static readonly MAX_OVERLAY_ATTEMPTS = 15;
@@ -168,7 +185,8 @@ class SubtitleTranslator {
   private async init() {
     console.log('[YouTube Live Translate] 初始化中...');
 
-    const result = await chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign', 'translatedFontSize', 'position', 'isClosed']);
+    const result = await chrome.storage.sync.get(['enabled', 'targetLang', 'showOriginal', 'hideOriginalSubtitles', 'textAlign', 'translatedFontSize', 'position', 'isClosed', 'uiLanguage']);
+    this.uiLanguage = normalizeUiLocale(result.uiLanguage);
     this.state = {
       enabled: result.enabled ?? true,
       targetLang: result.targetLang ?? 'zh-CN',
@@ -200,6 +218,10 @@ class SubtitleTranslator {
 
     chrome.storage.onChanged.addListener((changes, namespace) => {
       if (namespace === 'sync') {
+        if (changes.uiLanguage) {
+          this.uiLanguage = normalizeUiLocale(changes.uiLanguage.newValue);
+          this.updateLoadingText();
+        }
         if (changes.enabled) {
           this.state.enabled = changes.enabled.newValue;
           this.toggleTranslation();
@@ -429,43 +451,57 @@ class SubtitleTranslator {
       pointer-events: auto;
       position: relative;
       cursor: grab;
+      max-height: ${SUBTITLE_BOX_MAX_HEIGHT};
+      overflow: hidden;
     `;
 
     // 拖拽事件绑定到整个字幕框
     this.subtitleBox.addEventListener('mousedown', (e) => this.handleMouseDown(e));
 
-    // 关闭按钮
+    // 关闭按钮：默认隐藏，仅字幕框 hover 时显示
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '✕';
     closeButton.style.cssText = `
       position: absolute;
       top: 50%;
-      right: 10px;
+      right: 8px;
       transform: translateY(-50%);
       width: 24px;
       height: 24px;
       border: none;
       background: transparent;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.32);
       border-radius: 50%;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
       line-height: 1;
       padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
+      transition: color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
       user-select: none;
       z-index: 10;
+      opacity: 0;
+      pointer-events: none;
     `;
+    this.subtitleBox.addEventListener('mouseenter', () => {
+      closeButton.style.opacity = '1';
+      closeButton.style.pointerEvents = 'auto';
+    });
+    this.subtitleBox.addEventListener('mouseleave', () => {
+      closeButton.style.opacity = '0';
+      closeButton.style.pointerEvents = 'none';
+      closeButton.style.background = 'transparent';
+      closeButton.style.color = 'rgba(255, 255, 255, 0.32)';
+    });
     closeButton.addEventListener('mouseenter', () => {
-      closeButton.style.background = 'rgba(255, 100, 100, 0.15)';
-      closeButton.style.color = 'white';
+      closeButton.style.background = 'rgba(255, 255, 255, 0.06)';
+      closeButton.style.color = 'rgba(255, 255, 255, 0.55)';
     });
     closeButton.addEventListener('mouseleave', () => {
       closeButton.style.background = 'transparent';
-      closeButton.style.color = 'rgba(255, 255, 255, 0.7)';
+      closeButton.style.color = 'rgba(255, 255, 255, 0.32)';
     });
     closeButton.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -483,26 +519,57 @@ class SubtitleTranslator {
 
     this.subtitleBox.appendChild(closeButton);
 
-    // 原文行（默认隐藏）
+    // 加载状态行（翻译请求中显示）
+    this.loadingLine = document.createElement('div');
+    this.loadingLine.id = 'yt-live-translate-loading';
+    this.loadingLine.setAttribute('aria-hidden', 'true');
+    this.loadingLine.style.cssText = `
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 16px;
+      pointer-events: none;
+    `;
+    const spinner = document.createElement('span');
+    spinner.style.cssText = `
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: yt-live-translate-spin 0.7s linear infinite;
+    `;
+    const loadingText = document.createElement('span');
+    loadingText.className = 'yt-live-translate-loading-text';
+    loadingText.textContent = LOADING_TEXT[this.uiLanguage];
+    this.loadingLine.appendChild(spinner);
+    this.loadingLine.appendChild(loadingText);
+    this.injectLoadingStyles();
+    this.subtitleBox.appendChild(this.loadingLine);
+
+    // 原文行（默认隐藏，最多 2 行显示）
     this.originalLine = document.createElement('div');
     this.originalLine.id = 'yt-live-translate-original';
     this.originalLine.style.cssText = `
       color: rgba(255, 255, 255, 0.6);
-      font-size: 14px;
+      font-size: 16px;
       line-height: 1.4;
       text-align: ${this.state.textAlign};
       white-space: pre-wrap;
       word-wrap: break-word;
       display: ${this.state.showOriginal ? '-webkit-box' : 'none'};
-      pointer-events: none;
-      user-select: none;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+      pointer-events: none;
+      user-select: none;
     `;
 
-    // 译文行（默认显示）
+    // 译文行（完整显示，不截断；超出时自动缩小字号）
     const translatedFontSizePx = TRANSLATED_FONT_SIZE_PX[this.state.translatedFontSize];
     this.translatedLine = document.createElement('div');
     this.translatedLine.id = 'yt-live-translate-translated';
@@ -516,11 +583,7 @@ class SubtitleTranslator {
       word-wrap: break-word;
       pointer-events: none;
       user-select: none;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      display: block;
     `;
 
     // 组装 DOM：overlay 放入 wrapper，wrapper 放入播放器
@@ -531,6 +594,36 @@ class SubtitleTranslator {
     player.appendChild(wrapper);
 
     console.log('[YouTube Live Translate] Overlay 已创建，默认居中:', this.useDefaultPosition);
+  }
+
+  private injectLoadingStyles() {
+    if (document.getElementById('yt-live-translate-loading-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'yt-live-translate-loading-styles';
+    style.textContent = `
+      @keyframes yt-live-translate-spin {
+        to { transform: rotate(360deg); }
+      }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  private showLoading() {
+    if (this.loadingLine) {
+      this.loadingLine.style.display = 'flex';
+    }
+  }
+
+  private hideLoading() {
+    if (this.loadingLine) {
+      this.loadingLine.style.display = 'none';
+    }
+  }
+
+  private updateLoadingText() {
+    if (!this.loadingLine) return;
+    const textEl = this.loadingLine.querySelector('.yt-live-translate-loading-text');
+    if (textEl) textEl.textContent = LOADING_TEXT[this.uiLanguage];
   }
 
   private updateOverlayPosition() {
@@ -866,10 +959,12 @@ class SubtitleTranslator {
         this.originalLine.textContent = this.lastOriginalText;
       }
 
-      // 仅当未关闭字幕时显示 overlay
+      // 仅当未关闭字幕时显示 overlay；仅在尚无译文时（初始化）显示加载中
       if (this.overlay && !this.isClosed) {
         this.overlay.style.display = 'block';
         this.overlay.style.opacity = '1';
+        const hasContent = this.translatedLine?.textContent?.trim();
+        if (!hasContent) this.showLoading();
       }
 
       // 如果需要立即翻译，直接请求
@@ -976,7 +1071,7 @@ class SubtitleTranslator {
   }
 
   private updateTranslation(original: string, translated: string, seq: number) {
-    if (!this.translatedLine) return;
+    if (!this.translatedLine || !this.subtitleBox) return;
 
     // 更新当前字幕
     this.currentSubtitle = {
@@ -989,8 +1084,14 @@ class SubtitleTranslator {
     // 记录已翻译的文本
     this.lastTranslatedText = original;
 
-    // 更新 UI - 新字幕替换旧字幕
+    // 更新 UI - 新字幕替换旧字幕，隐藏加载状态
+    this.hideLoading();
     this.translatedLine.textContent = translated;
+
+    // 先用用户设定的字号，再按需缩小以完整显示
+    const basePx = TRANSLATED_FONT_SIZE_PX[this.state.translatedFontSize];
+    this.translatedLine.style.fontSize = `${basePx}px`;
+    this.fitTranslatedFontSizeToBox();
 
     // 仅当未关闭字幕时显示 overlay
     if (this.overlay && !this.isClosed) {
@@ -1001,6 +1102,17 @@ class SubtitleTranslator {
     console.log('[YouTube Live Translate] 译文已更新');
   }
 
+  /** 若字幕框内容溢出，则逐步缩小译文字号直到全部显示或达到最小字号 */
+  private fitTranslatedFontSizeToBox() {
+    if (!this.translatedLine || !this.subtitleBox) return;
+    const box = this.subtitleBox;
+    let px = parseInt(this.translatedLine.style.fontSize || '22', 10) || 22;
+    while (px >= MIN_TRANSLATED_FONT_PX && box.scrollHeight > box.clientHeight) {
+      px -= 2;
+      this.translatedLine.style.fontSize = `${px}px`;
+    }
+  }
+
   private clearSubtitle() {
     this.lastOriginalText = '';
 
@@ -1009,6 +1121,10 @@ class SubtitleTranslator {
       this.debounceTimer = null;
     }
 
+    this.hideLoading();
+    if (this.overlay) {
+      this.overlay.style.display = 'none';
+    }
     if (this.originalLine) {
       this.originalLine.textContent = '';
     }

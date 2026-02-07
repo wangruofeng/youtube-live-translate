@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production",
+    "build:watch": "webpack --mode production --watch",
     "clean": "rm -rf dist"
   },
   "keywords": [
