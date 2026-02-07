@@ -112,7 +112,7 @@ class SubtitleTranslator {
   private isClosed = false; // 关闭状态
   private dragOffsetX = 0;
   private dragOffsetY = 0;
-  private position: SubtitlePosition = { bottom: 80, left: 50 };
+  private position: SubtitlePosition = { bottom: 120, left: 0 }; // 距视频底部 120px，left=0 时 createOverlay 会计算居中
   private overlayWidth = 800; // 固定宽度
 
   // 字幕监听
@@ -301,16 +301,16 @@ class SubtitleTranslator {
       // Alt+R 重置位置
       if (e.altKey && e.key === 'r') {
         e.preventDefault();
-        // 计算默认位置（屏幕底部居中）
+        // 计算默认位置（距底部 120px，水平居中）
         const player = this.overlay?.parentElement;
         if (player) {
           const rect = player.getBoundingClientRect();
           this.position = {
-            bottom: 80,
+            bottom: 120,
             left: rect.width / 2 - this.overlayWidth / 2
           };
         } else {
-          this.position = { bottom: 80, left: 400 };
+          this.position = { bottom: 120, left: 400 };
         }
         this.savePosition();
         this.updateOverlayPosition();
