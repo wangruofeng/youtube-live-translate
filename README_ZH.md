@@ -1,3 +1,5 @@
+<img src="social-preview.png" alt="YouTube Live Translate" width="50%">
+
 # YouTube Live Translate
 
 > 🌍 YouTube 实时字幕翻译 Chrome 扩展 - 打破语言障碍，畅享全球视频内容
@@ -31,11 +33,7 @@
 
 <video src="public/demo-video-with-music.mp4" width="800" controls></video>
 
-![演示动图](public/demo-video-with-music.gif)
-
 ### 功能截图
-
-![YouTube Live Translate](social-preview.png)
 
 ```
 ┌────────────────────────────────────────┐

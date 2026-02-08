@@ -1,3 +1,5 @@
+<img src="social-preview-en.png" alt="YouTube Live Translate" width="50%">
+
 # YouTube Live Translate
 
 > 🌍 Chrome extension for real-time YouTube subtitle translation — break language barriers and enjoy global video content.
@@ -28,8 +30,6 @@
 30+ target languages (e.g. 简体/繁體中文, English, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, العربية, and more). Popup UI in English, 简体中文, or 繁體中文.
 
 ## 📸 Preview
-
-![YouTube Live Translate](social-preview-en.png)
 
 ```
 ┌────────────────────────────────────────┐
