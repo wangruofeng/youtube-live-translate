@@ -27,6 +27,12 @@
 
 ## 📸 界面预览
 
+### 演示视频
+
+<video src="public/demo-video-with-music.mp4" width="800" controls></video>
+
+### 功能截图
+
 ![YouTube Live Translate](social-preview.png)
 
 ```
