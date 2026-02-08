@@ -31,7 +31,13 @@
 
 ### 演示视频
 
-<video src="public/demo-video-with-music.mp4" width="800" controls></video>
+<div align="center">
+
+Demo 视频演示
+
+https://github.com/user-attachments/assets/4d94943b-facd-4794-a195-05ddfe22b840
+
+</div>
 
 ### 功能截图
 
