@@ -31,6 +31,8 @@
 
 <video src="public/demo-video-with-music.mp4" width="800" controls></video>
 
+![演示动图](public/demo-video-with-music.gif)
+
 ### 功能截图
 
 ![YouTube Live Translate](social-preview.png)
