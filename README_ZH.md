@@ -64,7 +64,7 @@ https://github.com/user-attachments/assets/4d94943b-facd-4794-a195-05ddfe22b840
 
 5. 点击"加载已解压的扩展程序"
 
-6. 选择解压后的文件夹
+6. 选择解压后的文件夹，选择 /dist 目录
 
 ### 使用方法
 
