@@ -1,0 +1,1 @@
+(()=>{"use strict";chrome.runtime.onInstalled.addListener(e=>{console.log("YouTube Live Translate 扩展已安装",e.reason),"install"===e.reason&&chrome.storage.sync.set({enabled:!0,targetLang:"zh-CN"})}),chrome.runtime.onMessage.addListener((e,s,n)=>("translate"===e.action&&n({success:!0}),!0))})();
