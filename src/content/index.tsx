@@ -812,16 +812,30 @@ class SubtitleTranslator {
       '.ytp-caption-segment',
       'caption-window.ytp-caption-window-bottom',
       '.captions-text',
-      '.ytp-caption-window-container',
+      // 备用选择器：Windows 上可能使用的结构
+      '.ytp-caption-window-container .caption-visual-line',
+      '.ytp-caption-window-container span',
     ];
 
     const checkForSubtitles = () => {
       for (const selector of selectors) {
         const elements = document.querySelectorAll(selector);
         if (elements.length > 0) {
-          console.log(`[YouTube Live Translate] 找到字幕元素: ${selector}`);
-          this.observeSubtitles(selector);
-          return;
+          // 验证元素是否真的包含文本
+          let hasText = false;
+          elements.forEach((el) => {
+            if (el.textContent?.trim()) {
+              hasText = true;
+            }
+          });
+
+          if (hasText) {
+            console.log(`[YouTube Live Translate] 找到字幕元素: ${selector} (数量: ${elements.length})`);
+            this.observeSubtitles(selector);
+            return;
+          } else {
+            console.log(`[YouTube Live Translate] 跳过无文本的选择器: ${selector}`);
+          }
         }
       }
       setTimeout(checkForSubtitles, 1000);
@@ -903,7 +917,15 @@ class SubtitleTranslator {
       }
     });
 
-    if (!currentText) {
+    // 调试日志：显示提取的文本内容
+    if (currentText) {
+      console.log(`[YouTube Live Translate] 字幕变化: "${currentText.substring(0, 50)}${currentText.length > 50 ? '...' : ''}"`);
+    } else {
+      console.log(`[YouTube Live Translate] ⚠️ 找到元素但文本为空 (selector: ${selector}, elements: ${elements.length})`);
+      // 调试：显示元素的 HTML 结构
+      if (elements.length > 0) {
+        console.log('[YouTube Live Translate] 元素 HTML:', elements[0].outerHTML.substring(0, 200));
+      }
       return;
     }
 
