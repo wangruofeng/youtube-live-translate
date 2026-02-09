@@ -1,5 +1,26 @@
 # 更新日志
 
+## [1.0.3] - 2026-02-09
+
+### 项目配置与文档
+
+- **Git 配置优化**
+  - 更新 `.gitignore`：移除 `dist/` 忽略规则，允许构建产物提交到仓库
+  - 新增本地开发工具目录忽略：`.agents/`、`.claude/`、`.cursor/`
+  - 新增本地文档忽略：`docs/WEB_FOR_APP_DEVS.md`、`docs/IMAGE_PROCESSING_TOOLS.md`
+  - 清理 Git 缓存，移除不应被跟踪的本地配置文件
+
+- **新增文档**
+  - `docs/GITHUB_VIDEO_HOSTING.md`：详细介绍使用 GitHub Release Assets URL 托管视频的方案
+    - 三种上传方式（Release、Issue/PR、GitHub CLI）
+    - 完整的项目实战示例
+    - 优缺点分析和最佳实践
+    - 常见问题解答（7 个 FAQ）
+    - 替代方案对比表
+    - 脚本化上传示例
+
+---
+
 ## [1.0.2] - 2026-02-08
 
 ### 文档与资源（基于最新代码刷新）
@@ -287,6 +308,6 @@ PATCH    - 向下兼容的问题修复
 
 ---
 
-**文档版本**: 1.0.0  
-**最后更新**: 2026-02-08  
+**文档版本**: 1.0.3
+**最后更新**: 2026-02-09
 **维护者**: YouTube Live Translate Team
