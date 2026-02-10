@@ -1,6 +1,6 @@
 {
   "name": "youtube-live-translate",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "YouTube 实时字幕翻译 Chrome 扩展",
   "scripts": {
     "dev": "webpack --mode development --watch",

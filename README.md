@@ -6,7 +6,7 @@
 
 [![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://github.com/wangruofeng/youtube-live-translate)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/wangruofeng/youtube-live-translate)
+[![Version](https://img.shields.io/badge/version-1.5.0-orange.svg)](https://github.com/wangruofeng/youtube-live-translate)
 
 **中文说明请见 [README_ZH.md](README_ZH.md)。**
 
