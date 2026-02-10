@@ -31,6 +31,48 @@
 
 ## 📸 Preview
 
+### Popup UI - Dark Theme
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="public/demo/popup_ui_dark_theme.webp" alt="Dark Theme Popup">
+    </td>
+    <td width="50%">
+      <img src="public/demo/popup_ui_settings.webp" alt="Settings Panel">
+    </td>
+  </tr>
+</table>
+
+### Subtitle Translation Examples
+
+<table>
+  <tr>
+    <td><img src="public/demo/subtitle_english_original_chinese_translation.webp" alt="English → Chinese"></td>
+    <td><img src="public/demo/subtitle_chinese_original_english_translation.webp" alt="Chinese → English"></td>
+  </tr>
+  <tr>
+    <td><strong>English → Chinese</strong></td>
+    <td><strong>Chinese → English</strong></td>
+  </tr>
+  <tr>
+    <td><img src="public/demo/subtitle_english_original_japanese_translation.webp" alt="English → Japanese"></td>
+    <td><img src="public/demo/subtitle_english_original_korean_translation.webp" alt="English → Korean"></td>
+  </tr>
+  <tr>
+    <td><strong>English → Japanese</strong></td>
+    <td><strong>English → Korean</strong></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="public/demo/subtitle_english_original_arabic_translation.webp" alt="English → Arabic"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><strong>English → Arabic (RTL Support)</strong></td>
+  </tr>
+</table>
+
+### Layout
+
 ```
 ┌────────────────────────────────────────┐
 │  ━━━                                 │ ← Drag area
