@@ -145,6 +145,8 @@ class SubtitleTranslator {
   private lastTranslatedText = ''; // 记录上次翻译的文本
   private seq = 0;
   private latestSeq = 0;
+  private lastValidSubtitleTime = 0; // 上次检测到有效字幕的时间
+  private readonly SUBTITLE_TIMEOUT = 3000; // 3秒无字幕则清理
 
   // 拖拽状态
   private isDragging = false;
@@ -555,7 +557,7 @@ class SubtitleTranslator {
     this.originalLine.id = 'yt-live-translate-original';
     this.originalLine.style.cssText = `
       color: rgba(255, 255, 255, 0.6);
-      font-size: 16px;
+      font-size: 18px;
       line-height: 1.4;
       text-align: ${this.state.textAlign};
       white-space: pre-wrap;
@@ -905,6 +907,12 @@ class SubtitleTranslator {
 
     const elements = document.querySelectorAll(selector);
     if (elements.length === 0) {
+      // 检查是否超时，超时则清理字幕显示
+      if (this.lastValidSubtitleTime > 0 && now - this.lastValidSubtitleTime > this.SUBTITLE_TIMEOUT) {
+        console.log('[YouTube Live Translate] 字幕元素消失超时，清理翻译控件');
+        this.clearSubtitle();
+        this.lastValidSubtitleTime = 0;
+      }
       return;
     }
 
@@ -920,11 +928,19 @@ class SubtitleTranslator {
     // 调试日志：显示提取的文本内容
     if (currentText) {
       console.log(`[YouTube Live Translate] 字幕变化: "${currentText.substring(0, 50)}${currentText.length > 50 ? '...' : ''}"`);
+      // 更新最后有效字幕时间
+      this.lastValidSubtitleTime = now;
     } else {
       console.log(`[YouTube Live Translate] ⚠️ 找到元素但文本为空 (selector: ${selector}, elements: ${elements.length})`);
       // 调试：显示元素的 HTML 结构
       if (elements.length > 0) {
         console.log('[YouTube Live Translate] 元素 HTML:', elements[0].outerHTML.substring(0, 200));
+      }
+      // 文本为空时也检查超时
+      if (this.lastValidSubtitleTime > 0 && now - this.lastValidSubtitleTime > this.SUBTITLE_TIMEOUT) {
+        console.log('[YouTube Live Translate] 字幕文本为空超时，清理翻译控件');
+        this.clearSubtitle();
+        this.lastValidSubtitleTime = 0;
       }
       return;
     }

@@ -93,4 +93,4 @@ export function t(locale: UiLocale, key: StringKey): string {
   return strings[locale][key] ?? strings.en[key] ?? key;
 }
 
-export const DEFAULT_UI_LOCALE: UiLocale = 'en';
+export const DEFAULT_UI_LOCALE: UiLocale = 'zh-CN';
