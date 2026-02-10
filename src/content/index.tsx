@@ -444,9 +444,9 @@ class SubtitleTranslator {
     this.subtitleBox.id = 'yt-live-translate-box';
     this.subtitleBox.style.cssText = `
       background: rgba(0, 0, 0, 0.6);
-      padding: 12px 44px 12px 20px;
+      padding: 12px 20px;
       padding-top: 8px;
-      border-radius: 8px;
+      border-radius: 0;
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -459,67 +459,6 @@ class SubtitleTranslator {
 
     // 拖拽事件绑定到整个字幕框
     this.subtitleBox.addEventListener('mousedown', (e) => this.handleMouseDown(e));
-
-    // 关闭按钮：默认隐藏，仅字幕框 hover 时显示
-    const closeButton = document.createElement('button');
-    closeButton.innerHTML = '✕';
-    closeButton.style.cssText = `
-      position: absolute;
-      top: 50%;
-      right: 8px;
-      transform: translateY(-50%);
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.32);
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
-      user-select: none;
-      z-index: 10;
-      opacity: 0;
-      pointer-events: none;
-    `;
-    this.subtitleBox.addEventListener('mouseenter', () => {
-      closeButton.style.opacity = '1';
-      closeButton.style.pointerEvents = 'auto';
-    });
-    this.subtitleBox.addEventListener('mouseleave', () => {
-      closeButton.style.opacity = '0';
-      closeButton.style.pointerEvents = 'none';
-      closeButton.style.background = 'transparent';
-      closeButton.style.color = 'rgba(255, 255, 255, 0.32)';
-    });
-    closeButton.addEventListener('mouseenter', () => {
-      closeButton.style.background = 'rgba(255, 255, 255, 0.06)';
-      closeButton.style.color = 'rgba(255, 255, 255, 0.55)';
-    });
-    closeButton.addEventListener('mouseleave', () => {
-      closeButton.style.background = 'transparent';
-      closeButton.style.color = 'rgba(255, 255, 255, 0.32)';
-    });
-    closeButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.isClosed = true;
-      if (this.overlay) {
-        this.overlay.style.display = 'none';
-      }
-      // 保存关闭状态
-      chrome.storage.sync.set({ isClosed: true });
-      console.log('[YouTube Live Translate] 字幕已关闭');
-    });
-    closeButton.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-    });
-
-    this.subtitleBox.appendChild(closeButton);
 
     // 加载状态行（翻译请求中显示）
     this.loadingLine = document.createElement('div');

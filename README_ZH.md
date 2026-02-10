@@ -29,17 +29,47 @@
 
 ## 📸 界面预览
 
-### 演示视频
+### 插件界面 - 深色主题
 
-<div align="center">
+<table>
+  <tr>
+    <td width="50%">
+      <img src="public/demo/popup_ui_dark_theme.webp" alt="深色主题弹窗">
+    </td>
+    <td width="50%">
+      <img src="public/demo/popup_ui_settings.webp" alt="设置面板">
+    </td>
+  </tr>
+</table>
 
-Demo 视频演示
+### 字幕翻译示例
 
-https://github.com/user-attachments/assets/4d94943b-facd-4794-a195-05ddfe22b840
+<table>
+  <tr>
+    <td><img src="public/demo/subtitle_english_original_chinese_translation.webp" alt="英语 → 简体中文"></td>
+    <td><img src="public/demo/subtitle_chinese_original_english_translation.webp" alt="中文 → 英语"></td>
+  </tr>
+  <tr>
+    <td><strong>英语 → 简体中文</strong></td>
+    <td><strong>中文 → 英语</strong></td>
+  </tr>
+  <tr>
+    <td><img src="public/demo/subtitle_english_original_japanese_translation.webp" alt="英语 → 日语"></td>
+    <td><img src="public/demo/subtitle_english_original_korean_translation.webp" alt="英语 → 韩语"></td>
+  </tr>
+  <tr>
+    <td><strong>英语 → 日语</strong></td>
+    <td><strong>英语 → 韩语</strong></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="public/demo/subtitle_english_original_arabic_translation.webp" alt="英语 → 阿拉伯语"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><strong>英语 → 阿拉伯语（RTL 语言支持）</strong></td>
+  </tr>
+</table>
 
-</div>
-
-### 功能截图
+### 字幕布局
 
 ```
 ┌────────────────────────────────────────┐
@@ -49,6 +79,16 @@ https://github.com/user-attachments/assets/4d94943b-facd-4794-a195-05ddfe22b840
 │                              ✕       │ ← 关闭按钮
 └────────────────────────────────────────┘
 ```
+
+### 演示视频
+
+<div align="center">
+
+Demo 视频演示
+
+https://github.com/user-attachments/assets/4d94943b-facd-4794-a195-05ddfe22b840
+
+</div>
 
 ## 🚀 快速开始
 
