@@ -14,3 +14,13 @@ docs/IMAGE_PROCESSING_TOOLS.md
 .agents/
 .claude/
 .cursor/
+
+# 大体积媒体文件 —— 演示视频统一用 GitHub 外链托管，不入库，避免 .git 历史膨胀
+*.mp4
+*.mov
+*.webm
+*.avi
+*.mkv
+*.flv
+*.gif
+# 注意：演示截图 *.webp / *.png / *.svg 体积小且有用，保持入库
